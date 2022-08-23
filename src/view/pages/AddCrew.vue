@@ -4,7 +4,7 @@
   </div> -->
   <div>
     <a-spin :spinning="formState.loader" class="" size="large">
-      <sdPageHeader title="Add Crew">
+      <sdPageHeader :title="id ? 'Edit Crew' : 'Add Crew'">
         <template v-slot:buttons>
           <!-- <div class="page-header-actions">
           <sdCalendarButton />
@@ -157,13 +157,13 @@
                 </a-col>
               </sdCards>
             </a-col>
-            <a-col :xs="24">
+            <a-col :lg="{ span: 4, offset: 20 }" :md="{ span: 6, offset:18 }" :xs="{ span: 24, offset: 0 }" :sm="{ span: 6, offset:18 }" >
               <sdCards>
-                <a-form-item :wrapper-col="{ offset: 23 }">
-                  <sdButton type="primary" html-type="submit"
-                    >Add Crew</sdButton
+                <!-- <a-form-item > -->
+                  <sdButton  type="primary" html-type="submit"
+                    >{{id ? "Update Crew" : "Add Crew"}}</sdButton
                   >
-                </a-form-item>
+                <!-- </a-form-item> -->
               </sdCards>
             </a-col>
           </a-row>
@@ -184,15 +184,25 @@ import countriesData from "../../helper/countryData.json";
 import { onMounted } from "vue";
 
 import { defineComponent, reactive } from "vue";
+import PropTypes from "vue-types";
+import { message } from "ant-design-vue";
+import crew from "../../server/Crew.js"
+
 
 export default defineComponent({
   name: "Form",
+   props: {
+    id:{
+      required:false,
+      type:PropTypes.String
+    }
+  },
   components: {
     Main,
     FormValidationWrap,
     VerticalFormStyleWrap,
   },
-  setup() {
+  setup(props, context) {
     const onFinish = (values) => {
       console.log("Success:", values);
     };
@@ -200,9 +210,11 @@ export default defineComponent({
     const onFinishFailed = (errorInfo) => {
       console.log("Failed:", errorInfo);
     };
-    const AddCrew = Parse.Object.extend("Crew");
-    const addCrew = new AddCrew();
+    
+    
     const addCrewData = async () => {
+      const AddCrew = Parse.Object.extend("Crew");
+      const addCrew = new AddCrew();
       formState.loader = true;
       const currentUser = Parse.User.current();
       const getAdmin = Parse.Object.extend("User");
@@ -213,7 +225,8 @@ export default defineComponent({
       acl.setWriteAccess(object.id, true);
       acl.setReadAccess(object.id, true);
       if (currentUser) {
-        addCrew.set({
+        if(!props.id){
+       addCrew.set({
           firstName: formState.firstName,
           lastName: formState.lastName,
           Position: formState.Position,
@@ -223,9 +236,13 @@ export default defineComponent({
           Note: formState.Note,
           realmId: makeid(10),
         });
-        await addCrew.setACL(acl);
+         await addCrew.setACL(acl);
         addCrew.save().then(
+          
           (crew) => {
+        message.success("New Crew is added ");
+        context.emit('added');
+
             (formState.firstName = ""),
               (formState.lastName = ""),
               (formState.Position = ""),
@@ -233,15 +250,51 @@ export default defineComponent({
               (formState.Nationality = ""),
               (formState.LicenceNumber = ""),
               (formState.Note = ""),
-              (formState.realmId = makeid(10)),
               console.log(crew);
             formState.loader = false;
           },
           (error) => {
+
+        message.error("Please fill required fields");
+
             console.log(error);
             formState.loader = false;
           }
         );
+        }
+        else {
+          console.log("hello")
+      var query = new Parse.Query("Crew");
+      query.get(props.id).then(async(obj)=>{
+   obj.set("firstName",formState.firstName)
+          obj.set("lastName",formState.lastName)
+          obj.set("Position",formState.Position)
+          obj.set("EmployeeId",formState.EmployeeId)
+          obj.set("Nationality",formState.Nationality)
+          obj.set("LicenceNumber",formState.LicenceNumber)
+          obj.set("Note",formState.Note)
+          await obj.save().then(()=>{
+        message.success("Crew id Updated");
+            (formState.firstName = ""),
+              (formState.lastName = ""),
+              (formState.Position = ""),
+              (formState.EmployeeId = ""),
+              (formState.Nationality = ""),
+              (formState.LicenceNumber = ""),
+              (formState.Note = ""),
+            formState.loader = false;     
+          },(error)=>{
+        message.error("Crew is not updated ");
+                
+            console.log(error)
+            formState.loader = false;
+
+          })
+      })
+      
+        }
+      
+       
       }
     };
     const data1 = Object.keys(countriesData);
@@ -259,15 +312,45 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      var query = new Parse.Query("Crew");
+
+  //  get crew details to update
+  if(props.id){
+    console.log("id",props.id)
+  //  const getcrewquery = new Parse.Query("Crew");
+      crew.getPointer(props.id).then(
+        (obj) => {
+          const firstName = obj.get("firstName");
+          const lastName = obj.get("lastName");
+          const Position = obj.get("Position");
+          const EmployeedId = obj.get("EmployeeId");
+          const LicenceNumber = obj.get("LicenceNumber");
+          const Nationality = obj.get("Nationality");
+
+          const Note = obj.get("Note");
+          formState.firstName = firstName;
+          formState.lastName = lastName;
+          formState.Position = Position;
+          formState.EmployeeId = EmployeedId;
+          formState.Note = Note;
+          formState.LicenceNumber = LicenceNumber;
+          formState.Nationality = Nationality;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+
+  }
+
+      // var query = new Parse.Query("Crew");
       //  const query = new Parse.Query(AddCrew);
       // query.limit(1);
-      const data = query.find();
-      console.log(
-        data.then((e) => {
-          console.log(e);
-        })
-      );
+      // const data = query.find();
+      // console.log(
+      //   data.then((e) => {
+      //     console.log(e);
+      //   })
+      // );
     });
 
     const handleButtonClick = (e) => {

@@ -8,6 +8,11 @@ const makeid = (length) => {
   return result;
 };
 
+function getCrewMembers() {
+  console.log("getCrewMembers");
+}
+
 export default {
   makeid,
+  getCrewMembers,
 };

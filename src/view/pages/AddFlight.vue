@@ -1,9 +1,12 @@
 <template>
+
   <div>
+    <a-spin :spinning="loadingState.loading" >
+      
     <sdPageHeader title="Add Flight">
       <template v-slot:buttons>
         <div class="page-header-actions">
-          <sdButton @click="lastFlightRecord();copyDataModel();" size="small" type="primary">
+          <sdButton @click="lastFlightRecord();" size="small" type="primary">
             <sdFeatherIcons type="plus" size="14" />
             Copy data from last flight
           </sdButton>
@@ -26,12 +29,12 @@
               <FormValidationWrap>
                 <VerticalFormStyleWrap>
                   <a-row :gutter="30">
-                    <a-col :md="6" :xs="24">
-                      <a-form-item name="Fli" label="FlightDate(UTC)">
-                        <a-date-picker v-model:value="flightState.FlightDate" />
+                    <a-col :md="12" :xs="24">
+                      <a-form-item name="FlightDate" label="FlightDate(UTC)">
+                        <a-date-picker v-model:value="flightState.FlightDate"  />
                       </a-form-item>
                     </a-col>
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="FlightNumber"
                         name="Flight Number"
@@ -43,7 +46,7 @@
                         />
                       </a-form-item>
                     </a-col>
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="DepartureAirport"
                         name="DepartureAirport"
@@ -56,7 +59,7 @@
                         />
                       </a-form-item>
                     </a-col>
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="DestinatonAirport"
                         name="DestinatonAirport"
@@ -83,7 +86,7 @@
                   <a-row :gutter="30">
                     <!-- dropdown -->
                     <a-col :md="8" :xs="24">
-                      <a-form-item
+                      <!-- <a-form-item
                         ref="airplane"
                         name="airplane"
                         label="Select an airplane"
@@ -96,13 +99,20 @@
                             Select an Aircraft
                           </a-select-option>
                           <a-select-option
-                            v-for="pro in AircraftTypes.types"
-                            :key="pro"
+                            v-for="type in AircraftTypes.aircraft"
+                            :key="type.id"
                           >
-                            {{ pro[0] }}
+                            {{ type.aircraftRegisteration}}
                           </a-select-option>
                         </a-select>
-                      </a-form-item>
+                      </a-form-item> -->
+                      <select v-model="flightState.airplane">
+                        <option value="">
+                            Select an Aircraft
+                          </option>
+                        <option v-for="aircraft in AircraftTypes.aircraft" :value="aircraft" :key="aircraft.id">{{aircraft.aircraftRegisteration}}</option>
+ 
+                      </select>
                     </a-col>
 
                     <a-col :md="8" :xs="24">
@@ -113,7 +123,7 @@
                       >
                         <!-- v-model:value="flightState.airplane[0]" -->
                         <a-input
-                          v-model:value="flightState.airplane[0]"
+                          v-model:value="flightState.aircraftType"
                           placeholder="Eg. B777"
                         />
                       </a-form-item>
@@ -126,7 +136,7 @@
                       >
                         <!-- v-model:value="flightState.airplane[1]" -->
                         <a-input
-                          v-model:value="flightState.airplane[1]"
+                          v-model:value="flightState.AircraftRegistaton"
                           placeholder="Eg. N12345"
                         />
                       </a-form-item>
@@ -149,6 +159,9 @@
                         name="OutTime"
                       >
                         <a-input
+                          type="time"
+                          @blur="setOutTime();setBlockTime();"
+                          format="hh:mm:ss"
                           v-model:value="flightState.OutTime"
                           placeholder="HHMM"
                         />
@@ -161,6 +174,8 @@
                         label="Off Time "
                       >
                         <a-input
+                          type="time"
+                          @blur="setOffTime();setFlightTime()"
                           v-model:value="flightState.OffTime"
                           placeholder="HHMM"
                         />
@@ -169,6 +184,8 @@
                     <a-col :md="6" :xs="24">
                       <a-form-item ref="OnTime" name="OnTime" label="On Time ">
                         <a-input
+                          type="time"
+                          @blur="setOnTime();setFlightTime()"
                           v-model:value="flightState.OnTime"
                           placeholder="HHMM"
                         />
@@ -177,6 +194,8 @@
                     <a-col :md="6" :xs="24">
                       <a-form-item ref="InTime" name="name" label="In Time">
                         <a-input
+                          type="time"
+                          @blur="setInTime();setBlockTime()"
                           v-model:value="flightState.InTime"
                           placeholder="HHMM"
                         />
@@ -201,6 +220,8 @@
                         name="NightTime"
                       >
                         <a-input
+                          type="time"
+                          @blur="setNightTime()"
                           v-model:value="flightState.nightTime"
                           placeholder="HHMM"
                         />
@@ -225,6 +246,7 @@
                         name="BlockTime"
                       >
                         <a-input
+                          disabled
                           v-model:value="flightState.BlockTime"
                           placeholder="00:00"
                         />
@@ -237,6 +259,7 @@
                         label="Flight Time "
                       >
                         <a-input
+                          disabled
                           v-model:value="flightState.FlightTime"
                           placeholder="00:00"
                         />
@@ -248,52 +271,14 @@
             </sdCards>
           </a-col>
           <!-- crew time -->
-          <!-- <a-col :md="24" :xs="24">
+        
           <sdCards title="CREW">
-            <a-row>
-              <a-col :md="6" :xs="24">
-                <a-button
-                  type="primary"
-                  @click="showModal()"
-                  html-type="submit"
-                >
-                  Pilot in Command
-                </a-button>
-              </a-col>
-
-              <a-col :md="6" :xs="24">
-                <a-button
-                  type="primary"
-                  @click="showModal()"
-                  html-type="submit"
-                >
-                  Crew 2
-                </a-button>
-              </a-col>
-              <a-col :md="6" :xs="24">
-                <a-button
-                  type="primary"
-                  @click="showModal()"
-                  html-type="submit"
-                >
-                  Crew 3
-                </a-button>
-              </a-col>
-              <a-col :md="6" :xs="24">
-                <a-button
-                  type="primary"
-                  @click="showModal()"
-                  html-type="submit"
-                >
-                  Crew 4
-                </a-button>
-              </a-col>
-            </a-row>
-          </sdCards>
-        </a-col> -->
-          <sdCards title="CREW">
-            <div class="crew-members">
-              <span @click="showModal('pilot')">
+          
+             
+             
+              <a-row :gutter="30">
+           <a-col :md="12" :xs="24">
+                 <span @click="showModal('pilot')">
                 <sdFeatherIcons type="user" size="16" />
               </span>
               <input
@@ -302,8 +287,8 @@
                 disabled
                 placeholder="Pilot In Command"
               />
-            </div>
-            <div class="crew-members">
+             </a-col>
+           <a-col :md="12" :xs="24">
               <span @click="showModal('crew2')">
                 <sdFeatherIcons type="user" size="16" />
               </span>
@@ -314,9 +299,9 @@
                 disabled
                 placeholder="Crew2"
               />
-            </div>
-            <div class="crew-members">
-              <span @click="showModal('crew3')">
+          </a-col>
+           <a-col :md="12" :xs="24">
+ <span @click="showModal('crew3')">
                 <sdFeatherIcons type="user" size="16" />
               </span>
               <input
@@ -325,9 +310,9 @@
                 disabled
                 placeholder="Crew3"
               />
-            </div>
-            <div class="crew-members">
-              <span @click="showModal('crew4')">
+          </a-col>
+           <a-col :md="12" :xs="24">
+             <span @click="showModal('crew4')">
                 <sdFeatherIcons type="user" size="16" />
               </span>
               <input
@@ -335,8 +320,9 @@
                 v-model="flightState.Crew4.name"
                 disabled
                 placeholder="Crew4"
-              />
-            </div>
+              /> 
+          </a-col>
+           </a-row>
           </sdCards>
 
           <!-- setting data
@@ -354,7 +340,6 @@
                       >
                         <a-switch
                           v-model:checked="flightState.PicTime"
-                          size="large"
                         />
                       </a-form-item>
                     </a-col>
@@ -366,7 +351,6 @@
                       >
                         <a-switch
                           v-model:checked="flightState.PFTakeOff"
-                          size="large"
                         />
                       </a-form-item>
                     </a-col>
@@ -378,7 +362,6 @@
                       >
                         <a-switch
                           v-model:checked="flightState.PfLanding"
-                          size="large"
                         />
                       </a-form-item>
                     </a-col>
@@ -390,7 +373,6 @@
                       >
                         <a-switch
                           v-model:checked="flightState.AutoLand"
-                          size="large"
                         />
                       </a-form-item>
                     </a-col>
@@ -402,7 +384,6 @@
                       >
                         <a-switch
                           v-model:checked="flightState.GoAround"
-                          size="large"
                         />
                       </a-form-item>
                     </a-col>
@@ -414,7 +395,6 @@
                       >
                         <a-switch
                           v-model:checked="flightState.Diverted"
-                          size="large"
                         />
                       </a-form-item>
                     </a-col>
@@ -429,7 +409,7 @@
               <FormValidationWrap>
                 <VerticalFormStyleWrap>
                   <a-row :gutter="30">
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="ApproachType"
                         name="ApproachType"
@@ -437,10 +417,9 @@
                       >
                         <a-select
                           v-model:value="ApproachTypes.type"
-                          style="width: 100px"
                         >
                           <a-select-option value="">
-                            Select Aircraft
+                            Select Approach
                           </a-select-option>
                           <a-select-option
                             v-for="pro in ApproachTypes.types"
@@ -451,37 +430,41 @@
                         </a-select>
                       </a-form-item>
                     </a-col>
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="TotalPassangers"
                         name="TotalPassangers"
                         label="Total Passangers "
                       >
                         <a-input
+                          type="number"
                           v-model:value="flightState.TotalPassangers"
                           placeholder="0 "
                         />
                       </a-form-item>
                     </a-col>
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="TotalPayload"
                         name="TotalPayload"
                         label="Total Payload(Tons) "
                       >
                         <a-input
+                          type="decimal"
                           v-model:value="flightState.TotalPayload"
                           placeholder="0.0 "
                         />
+                        <!-- <input type="number" v-model="flightState.TotalPayload"> -->
                       </a-form-item>
                     </a-col>
-                    <a-col :md="6" :xs="24">
+                    <a-col :md="12" :xs="24">
                       <a-form-item
                         ref="FlightPlanDistance"
                         name="FlightPlanDistance"
                         label="Flight Plan Distance(NM) "
                       >
                         <a-input
+                          type="number"
                           v-model:value="flightState.FlightPlanDistance"
                           placeholder="0"
                         />
@@ -504,13 +487,13 @@
               </a-form-item>
             </sdCards>
           </a-col>
-          <a-col :xs="24">
+          <a-col :lg="{ span: 4, offset: 20 }" :md="{ span: 6, offset:18 }" :xs="{ span: 24, offset: 0 }" :sm="{ span: 6, offset:18 }">
             <sdCards>
-              <a-form-item :wrapper-col="{ offset: 23 }">
+              <!-- <a-form-item :wrapper-col="{ offset: 23 }"> -->
                 <sdButton type="primary" html-type="submit"
-                  >Add Flight</sdButton
+                  >{{update.updateFlag?'Update Flight':'Add Flight'}}</sdButton
                 >
-              </a-form-item>
+              <!-- </a-form-item> -->
             </sdCards>
           </a-col>
         </a-row>
@@ -524,7 +507,7 @@
         type="primary"
         :width="1000"
       >
-        <AddCrew></AddCrew>
+        <AddCrew @added="added()"></AddCrew>
       </Modal>
       <Modal
         name="copyDataModel"
@@ -538,18 +521,26 @@
           <a-col :xs="24">
             <a-row>
               <a-col :md="24" :xs="24">
-                <a-checkbox @change="onChangeDate()" :checked="CopyLastFlight.FlightDate"
+                <!-- <a-checkbox @change="onChangeDate()" :checked="CopyLastFlight.FlightDate"
                   >Flight Date</a-checkbox
-                >
+                > -->
+                <input type="checkbox" id="datecheckbox" v-model="CopyLastFlight.FlightDate" />
+                <label for="datecheckbox"> Flight Date </label>
               </a-col>
               <a-col :md="24" :xs="24">
-                <a-checkbox @change="onChangeAircraft()" :value="CopyLastFlight.AirCraft">Aircraft</a-checkbox>
+                 <input type="checkbox" id="AirCraftcheckbox" v-model="CopyLastFlight.Aircraft" />
+                <label for="AirCraftcheckbox"> AirCraft </label>
+                <!-- <a-checkbox @change="onChangeAircraft()" :value="CopyLastFlight.AirCraft">Aircraft</a-checkbox>
+             --> </a-col> 
+              <a-col :md="24" :xs="24">
+                 <input type="checkbox" id="DepToDescheckbox" v-model="CopyLastFlight.DeptoDes" />
+                <label for="DepToDescheckbox"> Departure to Destination </label>
+                <!-- <a-checkbox @change="onChangeDeptoDes()" :value="CopyLastFlight.DeptoDes">Departure to Destination</a-checkbox> -->
               </a-col>
               <a-col :md="24" :xs="24">
-                <a-checkbox @change="onChangeDeptoDes()" :value="CopyLastFlight.DeptoDes">Departure to Destination</a-checkbox>
-              </a-col>
-              <a-col :md="24" :xs="24">
-                <a-checkbox @change="onChangeCrew()" :value="CopyLastFlight.Crew">Crew</a-checkbox>
+                 <input type="checkbox" id="Crewcheckbox" v-model="CopyLastFlight.Crew" />
+                <label for="crewcheckbox"> Crew </label>
+                <!-- <a-checkbox @change="onChangeCrew()" :value="CopyLastFlight.Crew">Crew</a-checkbox> -->
               </a-col>
             </a-row>
           </a-col>
@@ -573,7 +564,7 @@
             Add Crew
           </sdButton>
           <a-col>
-            <a-input placeholder="Search by Crew Name">
+            <a-input placeholder="Search by Crew Name" v-model:value="searchField.value">
               <template #suffix>
                 <sdFeatherIcons type="search" size="16" />
               </template>
@@ -603,25 +594,31 @@
             </sdCards>
           </a-col>
         </a-row>
-        <div v-for="crew in CrewMembers.crews" :key="crew.name">
+        <div v-for="crew in filterData" :key="crew.name">
           <Crew @click="selectCrewMember(crew);handleCancel()">
             {{ crew.name }}
           </Crew>
         </div>
       </Modal>
     </Main>
+    </a-spin>
+
   </div>
+
 </template>
 
 <script>
 import { Main } from "../styled";
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref, reactive,computed } from "vue";
 //import Alert from '../../components/alerts/alerts';
 // import {Modals} from "../../components/modals/Modals.vue";
 import Modal from "../../components/modals/Modals.vue";
 import AddCrew from "./AddCrew";
 import Crew from "../../customComponents/Crew.vue";
 import moment from "moment";
+import PropTypes from "vue-types";
+
+import Airplane from '../../server/Airplane.js'
 import  Flight from '../../server/Flight.js';
 import CrewHelper from '../../server/Crew.js'
 import {
@@ -631,7 +628,7 @@ import {
 import Parse from "parse";
 
 import { onMounted } from "vue";
-
+import jsHelper from '../../helper/JsHelper.js'
 export default defineComponent({
   name: "AddFlight",
   components: {
@@ -643,7 +640,19 @@ export default defineComponent({
     Crew,
     AddCrew,
   },
-  setup() {
+   props: {
+    id:{
+      required:false,
+      type:PropTypes.String
+    }
+  },
+  setup(props) {
+    const update =reactive({
+      updateFlag:false,
+    });
+    const loadingState =reactive({
+      loading:false,
+    });
     const selectCrewMember = (cr) => {
       console.log(cr);
       if(crewFeild.name=='pilot'){
@@ -679,7 +688,7 @@ export default defineComponent({
       DestinatonAirport: "",
       AircraftType: "",
       AircraftRegistaton: "",
-      airplane: [null, null],
+      airplane: "",
       OutTime: "",
       OffTime: "",
       OnTime: "",
@@ -687,10 +696,22 @@ export default defineComponent({
       nightTime: "",
       BlockTime: "",
       FlightTime: "",
-      PilotInCommand: "",
-      Crew2: "",
-      Crew3: "",
-      Crew4: "",
+      PilotInCommand: {
+        name:'',
+        id:'',
+      },
+      Crew2: {
+        name:'',
+        id:'',
+      },
+      Crew3: {
+        name:'',
+        id:'',
+      },
+      Crew4: {
+        name:'',
+        id:'',
+      },
       PicTime: false,
       PFTakeOff: false,
       PfLanding: false,
@@ -700,7 +721,7 @@ export default defineComponent({
       ApproachType: "",
       TotalPassangers: "",
       TotalPayload: "",
-      FlightPlanDistance: "",
+      FlightPlanDistance:0 ,
       Note: "",
     });
 
@@ -725,10 +746,10 @@ export default defineComponent({
     });
 
     const AircraftTypes = reactive({
-      types: [
-        ["N123", "PHE"],
-        ["N12", "PHEN123"],
-        ["N1", "PHEN1234444"],
+      aircraft: [
+      //   ["N123", "PHE"],
+      //   ["N12", "PHEN123"],
+      //   ["N1", "PHEN1234444"],
       ],
     });
     const CopyLastFlight = reactive({
@@ -737,38 +758,79 @@ export default defineComponent({
       DeptoDes: false,
       Crew: false,
     });
+    const searchField=reactive(
+      {value:'',}
+    );
 
     const ApproachTypes = reactive({
       type: "",
-      types: [
-        "ILS",
-        "RNP",
-        "LOC",
-        "LDA",
-        "VOR",
-        "NDB",
-        "PAR",
-        "Visual",
-        "Contat",
-        "Circling",
-      ],
+      types: jsHelper.content
     });
 
     // methods
-    const AddFlight = Parse.Object.extend("Flight");
-    const addFlight = new AddFlight();
+    const displayTime=(time1,time2)=>{
+   if(time1 && time2){
+     console.log("time1",time1);
+     console.log("time2",time2);
+
+     return  strToMins(time1) - strToMins(time2) ;
+
+   }
+   else{
+     return 0 
+   }
+   function strToMins(t) {
+    var s = t.split(":");
+     return Number(s[0]) * 60 + Number(s[1]);
+    }
+  
+
+
+    };
+   const setBlockTime=()=>{
+    var blockTime =displayTime(flightState.OutTime,flightState.InTime);
+    console.log(typeof(blockTime));
+    blockTime > 0? flightState.BlockTime=blockTime:flightState.BlockTime=0; 
+   };
+   const setFlightTime=()=>{
+    var flightTime = flightState.FlightTime= displayTime(flightState.OffTime,flightState.OnTime);
+    console.log(typeof(flightTime));
+    flightTime > 0? flightState.FlightTime=flightTime:flightState.FlightTime=0;
+   };
+  
+    
 
     const addFlightMethod = async () => {
+    const AddFlight = Parse.Object.extend("Flight");
+    const addFlight = new AddFlight();
+    const AirPort = Parse.Object.extend("Airport");
     var pointer=null;
     var crew2=null;
     var crew3=null;
     var crew4=null;
-
+    
     console.log("Add Flight");
       const currentUser = Parse.User.current();
       const CrewClass=Parse.Object.extend("Crew");
      const crewQuery=new Parse.Query(CrewClass);
-     console.log('flightState.PilotInCommand.id',flightState.PilotInCommand.id);
+     
+     const airportDestinationQuery=new Parse.Query(AirPort);
+     const departureQuery=new Parse.Query(AirPort);
+     airportDestinationQuery.equalTo("IATAcode",flightState.DestinatonAirport.toUpperCase());
+     departureQuery.equalTo("IATAcode",flightState.DepartureAirport.toUpperCase());
+    const destinationPointer = await airportDestinationQuery.first();
+    console.log("destinationPointer",destinationPointer)
+    const departureAirport =  await departureQuery.first(); 
+    console.log("departurePointer",departureAirport)
+          console.log("typeof",flightState.TotalPayload)
+    
+    await crewQuery.get(flightState.PilotInCommand.id).then((object) => {
+        pointer=object
+        }).catch((error) =>  {
+          pointer=null
+          console.log("error",error)
+        });
+   console.log('flightState.PilotInCommand.id',flightState.PilotInCommand.id);
      await crewQuery.get(flightState.PilotInCommand.id).then((object) => {
         pointer=object
         }).catch((error) =>  {
@@ -793,8 +855,18 @@ export default defineComponent({
           crew4=null
           console.log("error",error)
         });
-  
+      var airplanePointer=null;
       const getAdmin = Parse.Object.extend("User");
+      const Airplane = Parse.Object.extend("AirPlane");
+      const airplanequery = new Parse.Query(Airplane);
+      console.log("airid",flightState.airplane.id);
+      await airplanequery.get(flightState.airplane.id).then((obj)=>{
+        console.log("then",obj)
+        airplanePointer=obj
+      }).catch((err)=>{
+        console.log("err" ,err);
+        airplanePointer=null;
+      })
       const adminquery = new Parse.Query(getAdmin);
       adminquery.equalTo("email", "admin@logatp.com");
       const object = await adminquery.first();
@@ -802,39 +874,100 @@ export default defineComponent({
       acl.setWriteAccess(object.id, true);
       acl.setReadAccess(object.id, true);
       if (currentUser) {
+        if(props.id){
+          var query = new Parse.Query("Flight"); 
+          query.get(props.id).then(async(obj)=>{
+            var d=new Date(new Date(moment(flightState.FlightDate).format("yyyy-MM-DD")).toISOString());
+            
+          obj.set("flightDate",d);
+          obj.set("flightNumber",flightState.FlightNumber);
+          obj.set("blockTime",flightState.BlockTime);
+          obj.set("Note",flightState.notes);
+          obj.set("flightTime", flightState.FlightTime);
+          obj.set("picTime",flightState.PicTime);
+          obj.set("pfTakeOff", flightState.PFTakeOff);
+          obj.set("pfLanding", flightState.PfLanding);
+          obj.set("autoLand", flightState.AutoLand);
+          obj.set("goAround", flightState.GoAround);
+          obj.set("diverted", flightState.Diverted);
+          obj.set("approachType", ApproachTypes.type);
+          obj.set("totalPassangers", flightState.TotalPassangers);
+          obj.set("totalPayload", parseFloat(flightState.TotalPayload));
+          obj.set("flightplanDistance", parseInt(flightState.FlightPlanDistance));
+          obj.set("notes", flightState.Note);
+          obj.set("nightTime", TimeDetails.nightTime);
+          obj.set("departureAirport",departureAirport);
+          obj.set("destinationAirport",destinationPointer);
+          obj.set("pilotInCommandPointer",pointer);
+          obj.set("crew2Pointer",crew2);
+          obj.set("crew3Pointer",crew3);
+          obj.set("crew4Pointer",crew4);
+          obj.set("crew2",flightState.Crew2.name);
+          obj.set("crew3",flightState.Crew3.name);
+          obj.set("crew4",flightState.Crew4.name);
+          obj.set("pilotInCommand",flightState.PilotInCommand.name);
+
+          obj.set("departure",flightState.DepartureAirport)
+          obj.set("destination",flightState.DestinatonAirport);
+         var outTime=new Date(moment.utc(TimeDetails.outTime));
+         var offTime= new Date(moment.utc(TimeDetails.offTime));
+         var onTime= new Date(moment.utc(TimeDetails.onTime));
+         var inTime= new Date(moment.utc(TimeDetails.inTime));
+          console.log("outTime",outTime)
+          console.log("offTime",offTime)
+          console.log("onTime",onTime)
+          console.log("inTime",inTime)
+
+          obj.set("outTime",outTime);
+          obj.set("offTime",offTime);
+          obj.set("onTime",onTime);
+          obj.set("inTime",inTime);
+
+          // obj.set("inTime",inTime);
+          obj.save().then((res)=>{
+          console.log("saved",res);
+            });
+
+          }); 
+        }
+        else{
         addFlight.set({
+          airplanePointer:airplanePointer,
+          realmID:jsHelper.makeid(10),
+          departureAirport:departureAirport,
+          destinationAirport:destinationPointer,
           pilotInCommandPointer:pointer,
           crew2Pointer:crew2,
           crew3Pointer:crew3,
           crew4Pointer:crew4,
-          PilotInCommand: flightState.PilotInCommand.name,
-          Crew2: flightState.Crew2.name,
-          Crew3: flightState.Crew3.name,
-          Crew4: flightState.Crew4.name,
-          FlightDate: moment(flightState.FlightDate).format("DD/MM/YYYY"),
-          FlightNumber: flightState.FlightNumber,
-          DepartureAirport: flightState.DepartureAirport,
-          DestinatonAirport: flightState.DestinatonAirport,
-          AircraftType: flightState.airplane[0],
-          AircraftRegistaton: flightState.airplane[1],
-          OutTime: flightState.OutTime,
-          OffTime: flightState.OffTime,
-          OnTime: flightState.OnTime,
-          InTime: flightState.InTime,
-          BlockTime: flightState.BlockTime,
-          FlightTime: flightState.FlightTime,
-          PicTime: flightState.PicTime,
-          PFTakeOff: flightState.PFTakeOff,
-          PfLanding: flightState.PfLanding,
-          AutoLand: flightState.AutoLand,
-          GoAround: flightState.GoAround,
-          Diverted: flightState.Diverted,
-          ApproachType: ApproachTypes.type,
-          TotalPassangers: flightState.TotalPassangers,
-          TotalPayload: flightState.TotalPayload,
-          FlightPlanDistance: flightState.FlightPlanDistance,
-          Note: flightState.Note,
-          nightTime: flightState.nightTime,
+          pilotInCommand: flightState.PilotInCommand.name,
+          crew2: flightState.Crew2.name,
+          crew3: flightState.Crew3.name,
+          crew4: flightState.Crew4.name,
+          flightDate: new Date(new Date(moment(flightState.FlightDate).format("yyyy-MM-DD")).toISOString()),//new Date (moment(flightState.FlightDate).format("DD/MM/YYYY")),
+          flightNumber: flightState.FlightNumber,
+          departure: flightState.DepartureAirport,
+          destination: flightState.DestinatonAirport,
+          aircraftType: flightState.airplane.aircraftType,
+          aircraftRegistration: flightState.airplane.aircraftRegisteration,
+          outTime:new Date(moment.utc(TimeDetails.outTime)), //new Date('2022-08-03T06:30:00.000Z'),//flightState.OutTime,
+          offTime: new Date(moment.utc(TimeDetails.offTime)),//flightState.OffTime,
+          onTime: new Date(moment.utc(TimeDetails.onTime)),//flightState.OnTime,
+          inTime: new Date(moment.utc(TimeDetails.inTime)),//flightState.InTime,
+          blockTime: flightState.BlockTime,
+          flightTime: flightState.FlightTime,
+          picTime: flightState.PicTime,
+          pfTakeOff: flightState.PFTakeOff,
+          pfLanding: flightState.PfLanding,
+          autoLand: flightState.AutoLand,
+          goAround: flightState.GoAround,
+          diverted: flightState.Diverted,
+          approachType: ApproachTypes.type,
+          totalPassangers: flightState.TotalPassangers,
+          totalPayload: parseFloat(flightState.TotalPayload),
+          flightplanDistance: parseInt(flightState.FlightPlanDistance),
+          notes: flightState.Note,
+          nightTime: TimeDetails.nightTime,
         });
 
         addFlight.setACL(acl);
@@ -864,7 +997,7 @@ export default defineComponent({
               (ApproachTypes.type = ""),
               (flightState.TotalPassangers = ""),
               (flightState.TotalPayload = ""),
-              (flightState.FlightPlanDistanc = ""),
+              (flightState.FlightPlanDistance = ""),
               (flightState.Note = "");
             flightState.nightTime = "";
           },
@@ -874,13 +1007,17 @@ export default defineComponent({
           }
         );
       }
+      }
     };
+    const added =()=>{
+      console.log("added");
+      CancleCrewModel();
+      getCrewMembers();
 
-    const showModal = (feild) => {
-      crewFeild.name=feild;
-      console.log(" crewFeild.name", crewFeild.name);
-      ModelState.visible = true;
-     CrewHelper.getCrewMembers().then((data)=>{
+    };
+    const getCrewMembers=()=>{
+      loadingState.loading=true;
+           CrewHelper.getCrewMembers().then((data)=>{
        console.log(
         "data" ,data
        )
@@ -895,8 +1032,18 @@ export default defineComponent({
                 };
                 CrewMembers.crews.push(obj);
             }
+      loadingState.loading=false;
+      ModelState.visible = true;
 
-     });
+     }
+      
+     );
+
+    };
+    const showModal = (feild) => {
+      crewFeild.name=feild;
+      console.log(" crewFeild.name", crewFeild.name);
+      getCrewMembers();
     };
     const copyDataModel = () => {
       ModelState.copyData = true;
@@ -925,51 +1072,144 @@ export default defineComponent({
       }, 2000);
     };
     const lastFlightRecord= ()=>{
+      loadingState.loading=true
       Flight.getLastFlightRecord().then((a)=>{
         console.log("a",a);
         lastFlightData=a;
+        copyDataModel();
+        loadingState.loading=false;
         console.log("lastFlightData",lastFlightData);
       });
 
     };
+
+   
+   const filterData = computed(() => {
+        return CrewMembers.crews.filter((crew) => {
+                return crew.name.toLowerCase().includes(searchField.value.toLowerCase())
+      });
+    });
     onMounted(() => {
+      console.log("time",moment().utcOffset());
+      if(props.id){
+        update.updateFlag=true;
+    console.log("id",props.id)
+  //  const getcrewquery = new Parse.Query("Crew");
+      Flight.getFlight(props.id).then(
+        (obj) => {
+          console.log("obj",obj);
+          // const airplanePointer=obj.get("airplanePointer");
+          // const realmID=obj.get("realmID");
+          // const departureAirport=obj.get("departureAirport");
+          // const destinationAirport=obj.get("destinationAirport");
+          const pilotInCommandPointer=obj.get("pilotInCommandPointer");
+          const crew2Pointer=obj.get("crew2Pointer");
+          const crew3Pointer=obj.get("crew3Pointer");
+          const crew4Pointer=obj.get("crew4Pointer");
+          // const pilotInCommand=obj.get("pilotInCommand");
+          // const crew2= obj.get("crew2");
+          // const crew3=obj.get("crew3");
+          // const crew4=obj.get("crew4");
+          const flightDate=obj.get("flightDate");
+          const flightNumber=obj.get("flightNumber");
+          const departure=obj.get("departure");
+          const destination=obj.get("destination");
+          const aircraftType=obj.get("aircraftType");
+          const aircraftRegistration=obj.get("aircraftRegistration");
+          const outTime=obj.get("outTime");
+          const offTime=obj.get("offTime");
+          const onTime=obj.get("onTime");
+          const blockTime=obj.get("blockTime");
+          const flightTime=obj.get("flightTime");
+          const picTime=obj.get("picTime");
+          const pfTakeOff=obj.get("pfTakeOff");
+          const pfLanding=obj.get("pfLanding");
+          const autoLand=obj.get("autoLand");
+          const goAround=obj.get("goAround");
+          const diverted=obj.get("diverted");
+          const approachType=obj.get("approachType");
+          const totalPassangers=obj.get("totalPassangers");
+          const totalPayload=obj.get("totalPayload");
+          const flightplanDistance=obj.get("flightplanDistance");
+          const notes=obj.get("notes");
+          const nightTime=obj.get("nightTime");
+          const inTime =obj.get("inTime");
+      if(pilotInCommandPointer){
+        flightState.PilotInCommand.id=pilotInCommandPointer.id;
+        flightState.PilotInCommand.name=pilotInCommandPointer.get("firstName") + ' ' +  pilotInCommandPointer.get("lastName"); 
+      }
+      if(crew2Pointer){
+        flightState.Crew2.id=crew2Pointer.id;
+        flightState.Crew2.name=crew2Pointer.get("firstName") + ' ' +  crew2Pointer.get("lastName"); 
+      }
+      if(crew3Pointer){
+        flightState.Crew3.id=crew3Pointer.id;
+        flightState.Crew3.name=crew3Pointer.get("firstName") + ' ' +  crew3Pointer.get("lastName"); 
+      }
+      if(crew4Pointer){
+        flightState.Crew4.id=crew4Pointer.id;
+        flightState.Crew4.name=crew4Pointer.get("firstName") + ' ' +  crew4Pointer.get("lastName"); 
+      }    
+      flightState.FlightDate=  flightState.FlightDate=moment(flightDate).format("YYYY/MM/DD");
+      flightState.FlightNumber= flightNumber;
+      flightState.DepartureAirport= departure;
+      flightState.DestinatonAirport= destination;
+      flightState.AircraftType= aircraftType;
+      flightState.AircraftRegistaton= aircraftRegistration;
+      // flightState.airplane= airplane,
+      console.log("out",moment.utc(outTime).format("HH:mm"));
+      console.log("out",moment.utc(outTime).format("HH:mm"));
+
+      // console.log("out",moment.toUTCString(outTime);
+      console.log("out",moment(outTime).format("hh:mm a"));
+      console.log("out",moment(outTime).format("hh:mm A"));
+
+      flightState.OutTime= moment.utc(outTime).format("HH:mm");
+      flightState.OffTime=moment.utc(offTime).format("HH:mm");
+      flightState.OnTime= moment.utc(onTime).format("HH:mm");
+      flightState.InTime= moment.utc(inTime).format("HH:mm");
+
+      TimeDetails.outTime=outTime;
+      TimeDetails.offTime=offTime;
+      TimeDetails.onTime=onTime;
+      TimeDetails.inTime=inTime;
       
-      // Helper.getCrewMembers();
-      // (async () => {
-      //   const currentUser = Parse.User.current();
+      flightState.nightTime= moment.utc(nightTime).format("hh:mm");
+      flightState.BlockTime= blockTime;
+      flightState.FlightTime= flightTime;
+      // flightState.PilotInCommand= PilotInCommand;
+      // flightState.Crew2= crew2;
+      // flightState.Crew3= crew3;
+      // flightState.Crew4= crew4;
+      flightState.PicTime= picTime;
+      flightState.PFTakeOff= pfTakeOff;
+      flightState.PfLanding= pfLanding;
+      flightState.AutoLand= autoLand;
+      flightState.GoAround= goAround;
+      flightState.Diverted= diverted;
+      ApproachTypes.type= approachType;
+      flightState.TotalPassangers= totalPassangers;
+      flightState.TotalPayload= totalPayload;
+      flightState.FlightPlanDistance= parseInt(flightplanDistance);
+      flightState.Note= notes;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
 
-      //   try {
-      //     if (currentUser) {
-      //       const query = new Parse.Query("Crew");
-      //       const query1 = new Parse.Query("Flight");
-      //       const flightData = await query1.find();
-      //       console.log("flightData", flightData);
+  }
+      Airplane.getAircrafts().then((data)=>{
+        for (const object of data) {
 
-      //       const results = await query.find();
-      //       try {
-      //         for (const obj of flightData) {
-      //           const AircraftType = obj.get("AircraftType");
-      //           const AircraftRegistaton = obj.get("AircraftRegistaton");
-
-      //           console.log("AircraftType", AircraftType);
-
-      //           console.log("AircraftRegistaton", AircraftRegistaton);
-      //           AircraftTypes.types.push([AircraftType, AircraftRegistaton]);
-      //         }
-
-      //         for (const object of results) {
-      //           const LastName = object.get("lastName");
-      //           CrewMembers.crews.push({ name: LastName });
-      //           console.log("lastName", LastName);
-      //         }
-      //       } catch (error) {
-      //         console.error("Error while fetching lastName", error);
-      //       }
-      //     }
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-      // })();
+                var obj={
+                 aircraftRegisteration: object.get("aircraftRegisteration"),
+                 aircraftType: object.get("aircraftType"),
+                 id:object.id,
+                };
+                AircraftTypes.aircraft.push(obj);
+            }
+      });
     });
     let lastFlightData=reactive();
     const onFinishFailed = (errorInfo) => {
@@ -980,20 +1220,56 @@ export default defineComponent({
     };
     const CancleCopyModel = () => {
       ModelState.copyData = false;
+      CopyLastFlight.FlightDate= false;
+      CopyLastFlight.Aircraft=false;
+      CopyLastFlight.DeptoDes=false;
+      CopyLastFlight.Crew= false;
     };
     const CancleCrewModel = () => {
       ModelState.addCrew = false;
     };
     const handleSelectData = () => {
+
+      const CrewClass=Parse.Object.extend("Crew");
+      const crewQuery=new Parse.Query(CrewClass);
+      const airplane=Parse.Object.extend("AirPlane");
+      const airplaneQuery=new Parse.Query(airplane);
       console.log("date", CopyLastFlight.FlightDate);
       console.log("aircraft", CopyLastFlight.Aircraft);
       console.log("dep", CopyLastFlight.DeptoDes);
       console.log("Crew", CopyLastFlight.Crew);
      if(CopyLastFlight.FlightDate){
-          flightState.FlightDate= lastFlightData.date
+       console.log("CopyLastFlight.FlightDate",lastFlightData.date);
+          console.log(typeof(lastFlightData.date))
+      
+          // console.log("type", typeOf(a));
+          console.log("date ",moment(lastFlightData.date).format("YYYY/MM/DD"));
+          flightState.FlightDate=moment(lastFlightData.date).format("YYYY/MM/DD"); 
      }
      if(CopyLastFlight.Aircraft){
-          flightState.AircraftType= lastFlightData.Aircraft
+        if(lastFlightData.airplane){
+
+           airplaneQuery.get(lastFlightData.airplane.id).then((object) => {
+            console.log("object", object)
+            var type = object.get("aircraftType");
+            var registeration = object.get("aircraftRegisteration");
+
+            console.log("type",type);
+            console.log("reg",registeration);
+
+            flightState.airplane={
+              'aircraftType':type,
+              'aircraftRegisteration':registeration,
+              'id':lastFlightData.airplane.id,
+
+            };
+          }
+          ).catch((error) =>  {
+            console.log("error",error)
+          });
+
+        }
+
 
      }
      if(CopyLastFlight.DeptoDes){
@@ -1002,34 +1278,192 @@ export default defineComponent({
 
      }
      if(CopyLastFlight.Crew){
-          flightState.Crew2= lastFlightData.Crew
+          //flightState.Crew2= lastFlightData.Crew
+          if(lastFlightData.pilot){
+           
+      crewQuery.get(lastFlightData.pilot.id).then((object) => {
+            console.log("object", object)
+            var name = object.get("firstName")+ ' ' + object.get("lastName");
+            console.log("name",name);
+            flightState.PilotInCommand={
+              'name':name,
+              'id':lastFlightData.pilot.id,
+
+            };
+          }
+          ).catch((error) =>  {
+            console.log("error",error)
+          });
+            
+          }
+          if(lastFlightData.crew2){
+          crewQuery.get(lastFlightData.crew2.id).then((object) => {
+            console.log("object", object)
+            var name = object.get("firstName")+ ' ' + object.get("lastName");
+            console.log("name",name);
+            flightState.Crew2={
+              'name':name,
+              'id':lastFlightData.crew2.id,
+
+            };
+          }
+          ).catch((error) =>  {
+            console.log("error",error)
+          });
+      
+          } 
+          if(lastFlightData.crew3){
+           crewQuery.get(lastFlightData.crew3.id).then((object) => {
+            console.log("object", object)
+            var name = object.get("firstName")+ ' ' + object.get("lastName");
+            console.log("name",name);
+            flightState.Crew3={
+              'name':name,
+              'id':lastFlightData.crew3.id,
+
+            };
+          }
+          ).catch((error) =>  {
+            console.log("error",error)
+          });
+      
+          } 
+          if(lastFlightData.crew4){
+          crewQuery.get(lastFlightData.crew4.id).then((object) => {
+            console.log("object", object)
+            var name = object.get("firstName")+ ' ' + object.get("lastName");
+            console.log("name",name);
+            flightState.Crew4={
+              'name':name,
+              'id':lastFlightData.crew4.id,
+
+            };
+          }
+          ).catch((error) =>  {
+            console.log("error",error)
+          });
+        
+          }
+
 
      }
       CancleCopyModel();
-      onChangeDate();
-      CopyLastFlight.FlightDate= false;
-      CopyLastFlight.Aircraft=false;
-      CopyLastFlight.DeptoDes=false;
-      CopyLastFlight.Crew= false;
+      
 
 
     };
-    const onChangeDate = () => {
-      CopyLastFlight.FlightDate = !CopyLastFlight.FlightDate;
+    const setNightTime=()=>{
+      console.log("flightState.NightTime",flightState.nightTime)
+      function strToMins(t) {
+    var s = t.split(":");
+     return Number(s[0]) * 60 + Number(s[1]);
+    }
+      TimeDetails.nightTime=strToMins(flightState.nightTime);
+      console.log("TimeDetails.nightTime",TimeDetails.nightTime);
+
     };
-    const onChangeCrew = () => {
-      CopyLastFlight.Crew = !CopyLastFlight.Crew;
-    };const onChangeAircraft = () => {
-      CopyLastFlight.Aircraft = !CopyLastFlight.Aircraft;
-    };const onChangeDeptoDes = () => {
-      CopyLastFlight.DeptoDes = !CopyLastFlight.DeptoDes;
+    const setInTime=()=>{
+      var d=new Date();
+      // var dt1= moment(d).format("MM/DD/YYYY") + ' '+ flightState.InTime+':00';
+      var dt2= moment(d).format("DD MMMM YYYY") + ' '+ flightState.InTime+' UTC';
+      TimeDetails.inTime=new Date(dt2);
+      
+      // TimeDetails.inTime=new Date(dt1).toISOString();
+
     };
+    const setOnTime=()=>{
+      var d=new Date();
+      // var dt1= moment(d).format("MM/DD/YYYY") + ' '+ flightState.OnTime+':00';
+      // TimeDetails.onTime=new Date(dt1).toISOString();
+      var dt2= moment(d).format("DD MMMM YYYY") + ' '+ flightState.OnTime+' UTC';
+       console.log("dt2",dt2)
+       TimeDetails.onTime=new Date(dt2);
+
+    };
+    const setOutTime=()=>{
+      var d=new Date();
+      // var dt1= moment(d).format("MM/DD/YYYY") + ' '+ flightState.OutTime+':00';
+       var dt2= moment(d).format("DD MMMM YYYY") + ' '+ flightState.OutTime+' UTC';
+       console.log("dt2",dt2)
+       TimeDetails.outTime=new Date(dt2);
+       
+     // TimeDetails.outTime=new Date(dt1).toISOString();
+    //  TimeDetails.outTime=new Date(moment.utc(dt1).format("yyyy/MM/DD,HH:mm"));
+
+    //  TimeDetails.outTime=moment(moment.utc(dt1).format("yyyy/MM/DD,HH:mm")).utcOffset(moment().utcOffset());
+     console.log("TimeDetails.outTime", TimeDetails.outTime);
+    //  console.log("new Date(dt1).toISOString()",new Date(dt1).toUTCString());
+      // console.log("new Date(dt1).toISOString()",moment.toUTCString(dt1));
+      // console.log("new Date(dt1).toISOString()",moment.utc(dt1).format("yyyy/MM/DD,HH:mm"));
+// console.log("offset",moment(moment.utc(dt1).format("yyyy/MM/DD,HH:mm")).utcOffset(moment().utcOffset()));
+
+
+    };
+    const setOffTime=()=>{
+      // console.log("flightState.OutTime",flightState.OutTime);
+      var d=new Date();
+      // var dt1= moment(d).format("MM/DD/YYYY") + ' '+ flightState.OffTime+':00';
+       var dt2= moment(d).format("DD MMMM YYYY") + ' '+ flightState.OffTime+' UTC';
+       console.log("dt2",dt2)
+
+       TimeDetails.offTime=new Date(dt2);
+
+
+      // TimeDetails.offTime=new Date(dt1).toISOString();
+
+      // console.log("d",d );
+      // var out =flightState.OutTime;
+      // var mins= parseInt(out.slice(-2), 10)//parseInt(number, 10)
+      // var hour=parseInt(out.substring(0,2), 10)
+      // console.log("min",mins);
+      // console.log("hour",hour)
+      // var space = out.replace(':',' ');
+      // console.log("space",space);
+      // console.log("utc",d.toUTCString()); 
+      
+      // var dt= moment(d).format("yyyy-MM-DD") +' '+flightState.OutTime+':00';
+      // console.log("d format",moment(d).format("yyyy-MM-DD"));
+      // console.log("dt",dt);
+      // console.log("dt1",dt1);
+      // console.log("dt1",new Date(dt1).toUTCString);
+      //  console.log("dt1",new Date(dt1).toISOString());
+      // var year=moment(d).format("yyyy")
+      // var month=moment(d).format("MM")
+      // var day=moment(d).format("DD");
+      // console.log("dateee", new Date(Date.UTC(year, month, day, hour, mins)));
+      // var ut=new Date(Date.UTC(year, month, day, hour, mins))
+      // console.log("ut",ut.toUTCString());
+      // console.log("dt utc",new Date(dt).toUTCString());
+
+      // console.log("dt",new Date(dt).toISOString());
+      
+
+
+    };
+    const display =()=>{
+      console.log("date",flightState.FlightDate._d.toUTCString());
+      console.log("final",moment(flightState.FlightDate).format("YYYY MM Do"));
+      console.log(moment(flightState.FlightDate).format("yyyy-MM-DD"));
+      var date=moment(flightState.FlightDate).format("yyyy-MM-DD")
+      var stringdate = new Date(date).toISOString();
+      console.log("stringdate",stringdate);
+
+      console.log("date",new Date('02 October 2011 14:48 UTC'));
+      console.log("date",flightState.FlightDate._d.toISOString());
+
+    };
+    const TimeDetails=reactive({
+      offTime:'',
+      onTime:'',
+      inTime:'',
+      outTime:'',
+      nightTime:0,
+    });
     const rules = {
       FlightDate: [
         {
           required: true,
           message: "Please input FlightDate ",
-          trigger: "blur",
         },
       ],
       FlightNumber: [
@@ -1152,12 +1586,12 @@ export default defineComponent({
       //     trigger: "blur",
       //   },
       // ],
-      BlockTime: [
-        { required: true, message: "Please Input BlockTime", trigger: "blur" },
-      ],
-      FlightTime: [
-        { required: true, message: "Please Input FlightTime", trigger: "blur" },
-      ],
+      // BlockTime: [
+      //   { required: true, message: "Please Input BlockTime", trigger: "blur" },
+      // ],
+      // FlightTime: [
+      //   { required: true, message: "Please Input FlightTime", trigger: "blur" },
+      // ],
       // ApproachType: [
       //   {
       //     required: true,
@@ -1165,27 +1599,27 @@ export default defineComponent({
       //     trigger: "change",
       //   },
       // ],
-      TotalPassangers: [
-        {
-          required: true,
-          message: "Please Input TotalPassangers",
-          trigger: "blur",
-        },
-      ],
-      TotalPayload: [
-        {
-          required: true,
-          message: "Please Input TotalPayload",
-          trigger: "blur",
-        },
-      ],
-      FlightPlanDistance: [
-        {
-          required: true,
-          message: "Please Input FlightPlanDistance",
-          trigger: "blur",
-        },
-      ],
+      // TotalPassangers: [
+      //   {
+      //     required: true,
+      //     message: "Please Input TotalPassangers",
+      //     trigger: "blur",
+      //   },
+      // ],
+      // TotalPayload: [
+      //   {
+      //     required: true,
+      //     message: "Please Input TotalPayload",
+      //     trigger: "blur",
+      //   },
+      // ],
+      // FlightPlanDistance: [
+      //   {
+      //     required: true,
+      //     message: "Please Input FlightPlanDistance",
+      //     trigger: "blur",
+      //   },
+      // ],
 
       Note: [
         {
@@ -1215,16 +1649,30 @@ export default defineComponent({
       CancleCopyModel,
       CancleCrewModel,
       handleSelectData,
-      onChangeDate,
-      onChangeAircraft,
-      onChangeDeptoDes,
-      onChangeCrew,
       addFlightMethod,
       selectCrewMember,
       onFinishFailed,
       flightState,
       lastFlightRecord,
-      lastFlightData
+      lastFlightData,
+      filterData,
+      searchField,
+      loadingState,
+      displayTime,
+      setBlockTime,
+      setFlightTime,
+      added,
+      getCrewMembers,
+      display,
+      TimeDetails,
+      setInTime,
+      setOnTime,
+      setOutTime,
+      setOffTime,
+      setNightTime,
+      update
+
+
     };
   },
 });

@@ -1,34 +1,36 @@
 <template>
   <ContactCardWrapper>
     <div class="contact-card">
+      <router-link :to="{name: 'flightinfo', params: {flightId: flight.id}}">
       <figure>
           <font-awesome-icon class="icon fa-5x " :icon="['fas', 'plane-departure']" />
         <figcaption>
-          <h3>{{ user.name }}</h3>
-          <span>{{ user.designation }}</span>
+          <h3>{{ flight.departure }} - {{ flight.destination }}</h3>
+          <!-- <span>{{ user.designation }}</span> -->
         </figcaption>
       </figure>
       <div class="user-info">
         <ul>
           <li>
-            <sdFeatherIcons type="phone" size="16" />
-            {{ user.phone }}
+            <font-awesome-icon icon="fas fa-clock" />
+            {{ timeFormat(flight.blockTime) }}
           </li>
           <li>
-            <sdFeatherIcons type="mail" size="16" />
-            {{ user.email }}
+            <font-awesome-icon icon="fas fa-calendar-alt" />
+            {{ dateFormat(flight.flightDate) }}
           </li>
           <li>
-            <sdFeatherIcons type="map-pin" size="16" />
-            {{ user.company }}
+            <font-awesome-icon icon="fas fa-plane" />
+            {{ flight.flightNumber }}
           </li>
         </ul>
       </div>
+      </router-link>
     </div>
   </ContactCardWrapper>
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, inject } from 'vue';
 import PropTypes from 'vue-types';
 import { ContactCardWrapper } from '../style';
 
@@ -36,13 +38,14 @@ const ContactCard = defineComponent({
   name: 'ContactCard',
   components: { ContactCardWrapper },
   props: {
-    user: PropTypes.object,
+    flight: PropTypes.object,
   },
   setup() {
-    
-
+    const dateFormat = inject('dateFormat');
+    const timeFormat = inject('timeFormat');
     return {
-      // users,
+      dateFormat,
+      timeFormat
     };
   },
 });

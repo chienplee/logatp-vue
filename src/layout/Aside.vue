@@ -5,6 +5,31 @@
     :mode="mode"
     :theme="darkMode ? 'dark' : 'light'"
   >
+    <a-menu-item key="Dashboard">
+      <router-link :to="{ name: 'Admin' }">
+        <font-awesome-icon class="icon" :icon="['fas', 'dashboard']" />
+        <span> Dashboard </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="Hours">
+      <router-link to="/hours">
+        <font-awesome-icon class="icon" :icon="['fas', 'fa-clock']" />
+        <span> Hours </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="currency">
+      <router-link to="/currency">
+        <font-awesome-icon class="icon" :icon="['fas', 'fa-filter']" />
+        <span> Currency </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="Summary">
+      <router-link to="/summary">
+        <font-awesome-icon class="icon" :icon="['fas', 'fa-file']" />
+        <span> Summary </span>
+      </router-link>
+    </a-menu-item>
+
     <a-menu-item key="Flights">
       <router-link to="/flights">
         <font-awesome-icon class="icon" :icon="['fas', 'plane-departure']" />
@@ -13,11 +38,23 @@
     </a-menu-item>
 
     <a-menu-item key="crews">
-      <router-link :to="{name: 'crews'}">
+      <router-link :to="{ name: 'crews' }">
         <font-awesome-icon icon="fas fa-user-friends" />
         <span> Crews </span>
       </router-link>
     </a-menu-item>
+    <a-menu-item key="map">
+      <router-link :to="{ name: 'map' }">
+        <font-awesome-icon icon="fas fa-thumbtack" />
+        
+        <span> Map </span>
+      </router-link>
+    </a-menu-item>
+    <!-- <a-menu-item key="data">
+      <router-link :to="{ name: 'data' }">
+<font-awesome-icon icon="fas fa-signal" />        <span> Data </span>
+      </router-link>
+    </a-menu-item> -->
 
     <a-menu-item-group key="crud">
       <template v-slot:title>
@@ -38,6 +75,61 @@
         <span> Add Crew </span>
       </router-link>
     </a-menu-item>
+    <a-menu-item key="settings">
+      <router-link to="/settings">
+        <font-awesome-icon class="icon" icon="fa-solid fa-gear" />
+        <span> Settings </span>
+      </router-link>
+    </a-menu-item>
+
+    <a-menu-item key="weather">
+      <router-link to="/weather">
+        <font-awesome-icon class="icon" icon="fas fa-cloud-sun" />
+        <span> Weather </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="airportview">
+      <router-link to="/airportview">
+        <font-awesome-icon class="icon" icon="fas fa-street-view" />
+        <span> Airport View </span>
+      </router-link>
+    </a-menu-item>
+
+    <a-sub-menu key="layout">
+      <template v-slot:title
+        ><sdFeatherIcons type="layout" /><span>Swith Theme</span></template
+      >
+      <a-menu-item @click="toggleCollapsed" key="light">
+        <a
+          @click="
+            (e) => {
+              e.preventDefault();
+              toggleCollapsed();
+              modeChangeLight();
+            }
+          "
+          to="#"
+        >
+          <font-awesome-icon class="icon" icon="fa-solid fa-lightbulb" />
+          <span>Light Mode</span>
+        </a>
+      </a-menu-item>
+      <a-menu-item @click="toggleCollapsed" key="dark">
+        <a
+          @click="
+            (e) => {
+              e.preventDefault();
+              toggleCollapsed();
+              modeChangeDark();
+            }
+          "
+          to="#"
+        >
+          <font-awesome-icon class="icon" icon="fa-solid fa-moon" />
+          <span>Dark Mode</span>
+        </a>
+      </a-menu-item>
+    </a-sub-menu>
   </a-menu>
 </template>
 <script>

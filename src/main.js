@@ -12,6 +12,8 @@ import "@/core/plugins/ant-design";
 import "@/core/plugins/fonts";
 import "@/core/components/custom";
 import "@/core/components/style";
+import '@/core/plugins/apexcharts';
+
 import sdButton from "../src/components/buttons/Buttons.vue";
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'

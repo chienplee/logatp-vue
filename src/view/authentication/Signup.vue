@@ -87,6 +87,8 @@ const SignUp = defineComponent({
       user.set("email", formState.email);
       user.set("password", formState.password);
       user.set("username", formState.email);
+      user.set("lastName","");
+      user.set("firstName","")
       try {
         await user.signUp();
         formState.email = "";

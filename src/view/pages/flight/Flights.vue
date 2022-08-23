@@ -3,9 +3,10 @@
       <ContactPageheaderStyle>
         <sdPageHeader title="Flights">
           <template #subTitle>
-            <a-input v-model:value="searchValue" @change="handleSearch" placeholder="Search by Name">
+            <a-input v-model:value="pageSettings.searchFilter"  placeholder="Search by Name">
               <template #suffix>
-                <sdFeatherIcons type="search" size="16" />
+                <font-awesome-icon v-if="!pageSettings.searchFilter" icon="fas fa-search" />
+                <font-awesome-icon v-else icon="fas fa-times" @click="pageSettings.searchFilter = ''"/>
               </template>
             </a-input>
           </template>
@@ -14,19 +15,23 @@
     </CardToolbox>
     <Main>
     <a-row :gutter="25">
-      <a-col v-for="user in pageSettings.users" :key="user.id" :lg="6" :md="8" :sm="12" :xs="24">
+      <a-col v-for="flight in flightsDetails" :key="flight.id" :lg="6" :md="8" :sm="12" :xs="24">
+        <router-link to="/flightinfo">
         <sdCards headless>
-          <FlightCard :user="user" />
+          <FlightCard :flight="flight" />
         </sdCards>
+        </router-link>
       </a-col>
     </a-row>
     </Main>
 </template>
 <script>
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, reactive, onMounted, computed } from 'vue'
 import { Main, CardToolbox  } from "../../styled";
 import { ContactPageheaderStyle } from "../style"
 import FlightCard from './FlightCard.vue'
+import Flight from "../../../server/Flight"
+
 export default defineComponent({
     components:{
         FlightCard,
@@ -35,37 +40,37 @@ export default defineComponent({
         ContactPageheaderStyle
     },
     setup() {
-        const pageSettings = reactive({
-            loader : false,
-            users: [
-                {
-                  "id": 1,
-                  "time": 1587041636455,
-                  "name": "Duran Clayton",
-                  "designation": "UI/UX Designer",
-                  "stared": false,
-                  "phone": "+90014525",
-                  "company": "Business Development",
-                  "email": "john@gmail.com",
-                  "img": "static/img/users/1.png",
-                  "joining": "11 Jun 2020"
-                },
-                {
-                  "id": 2,
-                  "time": 1587041711525,
-                  "name": "David Milar",
-                  "designation": "UI/UX Designer",
-                  "stared": true,
-                  "phone": "+90014525",
-                  "company": "Business Development",
-                  "email": "john@gmail.com",
-                  "img": "static/img/users/2.png",
-                  "joining": "31 May 2021"
-                }]
+      const pageSettings = reactive({
+          loader : false,
+          flightsDetails: [],
+          searchFilter: '' 
+      })
+      // let flightsDetails = '';
+      onMounted(async () => {
+        var flightObj = await Flight.getFlights()
+        pageSettings.flightsDetails = flightObj.map((k) => {
+          return {
+            departure: k.get('departure'),
+            destination: k.get('destination'),
+            blockTime: k.get('blockTime'),
+            flightNumber: k.get('flightNumber'),
+            flightDate: k.get('flightDate'),
+            id: k.id
+          }
         })
+      }); 
 
+      const flightsDetails = computed(() => {
+        return pageSettings.flightsDetails && pageSettings.flightsDetails.filter((fli) => {
+                return fli.flightNumber && fli.flightNumber.toLowerCase().includes(pageSettings.searchFilter.toLowerCase()) ||
+                fli.departure && fli.departure.toLowerCase().includes(pageSettings.searchFilter.toLowerCase()) ||
+                fli.destination && fli.destination.toLowerCase().includes(pageSettings.searchFilter.toLowerCase());
+        });
+      });
+      
         return {
             pageSettings,
+            flightsDetails
         }
     },
 })

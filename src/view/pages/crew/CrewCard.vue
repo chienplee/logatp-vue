@@ -1,48 +1,58 @@
 <template>
   <ContactCardWrapper>
-    <div class="contact-card">
-      <figure>
+    <router-link :to="{ name: 'crewDetails', params: { crewid: user.crewId } }">
+      <div class="contact-card">
+        <figure>
           <font-awesome-icon class="fa-5x" icon="fas fa-user-friends" />
-        <figcaption>
-          <h3>{{ user.name }}</h3>
-          <span>{{ user.designation }}</span>
-        </figcaption>
-      </figure>
-      <div class="user-info">
-        <ul>
-          <li>
-            <sdFeatherIcons type="phone" size="16" />
-            {{ user.phone }}
-          </li>
-          <li>
-            <sdFeatherIcons type="mail" size="16" />
-            {{ user.email }}
-          </li>
-          <li>
-            <sdFeatherIcons type="map-pin" size="16" />
-            {{ user.company }}
-          </li>
-        </ul>
+          <figcaption>
+            <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+            <span>{{ user.Position }}</span>
+          </figcaption>
+        </figure>
+        <div class="user-info">
+          <ul>
+            <li>
+              
+            <font-awesome-icon icon="fa-solid fa-id-badge" />
+
+              {{ user.EmployeeId }}
+            </li>
+            <li>
+            <font-awesome-icon icon="fa-solid fa-id-card" />
+              {{ user.LicenceNumber }}
+
+            </li>
+            <li>
+              <sdFeatherIcons type="map-pin" size="16" />
+
+              
+              
+
+              {{ cuntryName(user.Nationality) }}
+
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </router-link>
   </ContactCardWrapper>
 </template>
 <script>
-import { defineComponent } from 'vue';
-import PropTypes from 'vue-types';
-import { ContactCardWrapper } from '../style';
+import { defineComponent, computed } from "vue";
+import PropTypes from "vue-types";
+import { ContactCardWrapper } from "../style";
+import counties from "../../../helper/countryData.json";
 
 const ContactCard = defineComponent({
-  name: 'ContactCard',
+  name: "ContactCard",
   components: { ContactCardWrapper },
   props: {
     user: PropTypes.object,
   },
   setup() {
-    
-
+    const cuntryName = computed(() => country => counties[country].name)
     return {
-      // users,
+      cuntryName
     };
   },
 });
