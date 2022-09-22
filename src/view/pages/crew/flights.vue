@@ -40,9 +40,9 @@ export default defineComponent({
         var lname = e.get("lastName");
         var name = fname + " " + lname;
 
-        console.log("name", name);
+        // console.log("name", name);
         var flightObj = await flight.getCrewMemberFlights(name);
-        console.log("floghtobj", flightObj);
+        // console.log("floghtobj", flightObj);
         // flightData.data = flightObj
         flightData.data = flightObj.map((k) => {
           return {

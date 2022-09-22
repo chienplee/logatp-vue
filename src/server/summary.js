@@ -7,6 +7,8 @@ import JsHelper from "../helper/JsHelper";
 export default {
   async getSummary(year) {
     var obj = {
+      deps: [],
+      dests: [],
       approachTypes: [],
       aircrafts: [],
       airports: [],
@@ -22,6 +24,7 @@ export default {
       totalPassangers: 0,
       totalpayload: 0,
       totapFlightPlanDistance: 0,
+      airportNames: [],
     };
     const currentUser = Parse.User.current();
 
@@ -33,7 +36,7 @@ export default {
 
       const firstday = new Date(now, 0, 1);
       const lastDay = new Date(now, 11, 31);
-      //   console.log(firstday,lastDay)
+        // console.log(firstday,lastDay)
 
       try {
         for (const object of flightData) {
@@ -42,7 +45,13 @@ export default {
           );
           const BlockTime = parseInt(object.get("blockTime"));
           if (JsHelper.dateCheck(firstday, lastDay, FlightDate)) {
-            console.log("hi");
+            // console.log("hi");
+            obj.deps.push(object.get("departureAirport"));
+            obj.dests.push(object.get("destinationAirport"));
+            obj.airportNames.push([
+              object.get("departureAirport"),
+              object.get("destinationAirport"),
+            ]);
 
             obj.flights = obj.flights + 1;
             const ar = object.get("aircraftRegistration");
@@ -93,9 +102,9 @@ export default {
             if (BlockTime) {
               obj.Hours += BlockTime;
             }
-            if (pictime==true) {
-                obj.picHours += BlockTime;
-              }
+            if (pictime == true) {
+              obj.picHours += BlockTime;
+            }
           }
         }
 

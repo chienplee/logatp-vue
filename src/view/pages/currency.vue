@@ -1,262 +1,236 @@
 <template>
+  <CardToolbox>
+    <ContactPageheaderStyle>
+      <sdPageHeader title="Currency">
+        <template #subTitle></template>
+      </sdPageHeader>
+    </ContactPageheaderStyle>
+  </CardToolbox>
   <Main>
-    <a-row :gutter="25">
-      <a-col :xs="24">
-        <sdCards title="LAST 3 TAKEOFFS" caption="">
-          <a-row :gutter="30">
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                {{
+    <a-spin :spinning="formState.loader" class size="large">
+      <a-row :gutter="25">
+        <a-col :xs="24">
+          <sdCards title="LAST 3 TAKEOFFS" caption>
+            <a-row :gutter="30">
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />
+                  {{
                   formState.recentTakeoofs[0]
-                    ? formState.recentTakeoofs[0].dep
-                    : "No Data"
-                }}
-              </span>
+                  ? formState.recentTakeoofs[0].dep
+                  : "No Data"
+                  }}
+                </span>
 
-              <span class="move-right">
-                {{
+                <span class="move-right">
+                  {{
                   formState.recentTakeoofs[0]
-                    ? formState.recentTakeoofs[0].date
-                    : "No Data"
-                }}
-              </span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                {{
+                  ? formState.recentTakeoofs[0].date
+                  : "No Data"
+                  }}
+                </span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />
+                  {{
                   formState.recentTakeoofs[1]
-                    ? formState.recentTakeoofs[1].dep
-                    : "No Data"
-                }}
-              </span>
+                  ? formState.recentTakeoofs[1].dep
+                  : "No Data"
+                  }}
+                </span>
 
-              <span class="move-right">
-                {{
+                <span class="move-right">
+                  {{
                   formState.recentTakeoofs[1]
-                    ? formState.recentTakeoofs[1].date
-                    : "No Data"
-                }}
-              </span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                {{
+                  ? formState.recentTakeoofs[1].date
+                  : "No Data"
+                  }}
+                </span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />
+                  {{
                   formState.recentTakeoofs[2]
-                    ? formState.recentTakeoofs[2].dep
-                    : "No Data"
-                }}
-              </span>
-              <span class="move-right">
-                {{
+                  ? formState.recentTakeoofs[2].dep
+                  : "No Data"
+                  }}
+                </span>
+                <span class="move-right">
+                  {{
                   formState.recentTakeoofs[2]
-                    ? formState.recentTakeoofs[2].date
-                    : "No Data"
-                }}</span
-              >
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                Takeoff Expiry Date
-              </span>
-              <span class="move-right"> {{ formState.takeoffExpiry }}</span>
-              <a-divider />
-            </a-col>
-          </a-row>
-        </sdCards>
-      </a-col>
+                  ? formState.recentTakeoofs[2].date
+                  : "No Data"
+                  }}
+                </span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />Takeoff Expiry Date
+                </span>
+                <span class="move-right">{{ formState.takeoffExpiry }}</span>
+                <a-divider />
+              </a-col>
+            </a-row>
+          </sdCards>
+        </a-col>
 
-      <a-col :xs="24">
-        <sdCards title="LAST 3 LANDINGS" caption="">
-          <a-row :gutter="30">
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
+        <a-col :xs="24">
+          <sdCards title="LAST 3 LANDINGS" caption>
+            <a-row :gutter="30">
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />
+                  {{
+                  formState.recentLandings[0]
+                  ? formState.recentLandings[0].des
+                  : "No Data"
+                  }}
+                </span>
+                
+                <span
+                  class="move-right"
+                >
+              
                 {{
                   formState.recentLandings[0]
-                    ? formState.recentLandings[0].des
-                    : "No Data"
-                }}
-              </span>
-              {{
-                formState.recentLandings[0]
                   ? formState.recentLandings[0].date
                   : "No Data"
-              }}
-              <span class="move-right"> </span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
-                {{
+                  }}
+              </span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />
+                  {{
                   formState.recentLandings[1]
-                    ? formState.recentLandings[0].des
-                    : "No Data"
-                }}
-              </span>
-              <span class="move-right">
-                {{
+                  ? formState.recentLandings[0].des
+                  : "No Data"
+                  }}
+                </span>
+                <span class="move-right">
+                  {{
                   formState.recentLandings[1]
-                    ? formState.recentLandings[1].date
-                    : "No Data"
-                }}
-              </span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
-                {{
+                  ? formState.recentLandings[1].date
+                  : "No Data"
+                  }}
+                </span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />
+                  {{
                   formState.recentLandings[2]
-                    ? formState.recentLandings[2].des
-                    : "No Data"
-                }}
-              </span>
-              <span class="move-right">
-                {{
+                  ? formState.recentLandings[2].des
+                  : "No Data"
+                  }}
+                </span>
+                <span class="move-right">
+                  {{
                   formState.recentLandings[2]
-                    ? formState.recentLandings[2].date
-                    : "No Data"
-                }}
-              </span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
-                Landing Expiry Date
-              </span>
-              <span class="move-right"> {{formState.takeoffExpiry}}</span>
-              <a-divider />
-            </a-col>
-          </a-row>
-        </sdCards>
-      </a-col>
-      <a-col :xs="24">
-        <sdCards title="RECENT TAKEOFFS" caption="">
-          <a-row :gutter="30">
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                {{ formState.m1name }}
-              </span>
-              <span class="move-right"> {{ formState.m1T }}</span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                {{ formState.m2name }}
-              </span>
-              <span class="move-right"> {{ formState.m2T }}</span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-up"
-                />
-                {{ formState.m3name }}
-              </span>
-              <span class="move-right"> {{ formState.m3T }}</span>
-              <a-divider />
-            </a-col>
-          </a-row>
-        </sdCards>
-      </a-col>
-      <a-col :xs="24">
-        <sdCards title="RECENT LANDINGS" caption="">
-          <a-row :gutter="30">
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
-                {{ formState.m1name }}
-              </span>
-              <span class="move-right"> {{ formState.m1L }}</span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
-                {{ formState.m1name }}
-              </span>
-              <span class="move-right"> {{ formState.m2L }}</span>
-              <a-divider />
-            </a-col>
-            <a-col :xs="24" :md="12" :lg="8">
-              <span>
-                <font-awesome-icon
-                  class="icon"
-                  icon="fa-solid fa-square-caret-down"
-                />
-                {{ formState.m1name }}
-              </span>
-              <span class="move-right"> {{ formState.m3L }}</span>
-              <a-divider />
-            </a-col>
-          </a-row>
-        </sdCards>
-      </a-col>
-    </a-row>
+                  ? formState.recentLandings[2].date
+                  : "No Data"
+                  }}
+                </span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />Landing Expiry Date
+                </span>
+                <span class="move-right">{{formState.takeoffExpiry}}</span>
+                <a-divider />
+              </a-col>
+            </a-row>
+          </sdCards>
+        </a-col>
+        <a-col :xs="24">
+          <sdCards title="RECENT TAKEOFFS" caption>
+            <a-row :gutter="30">
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />
+                  {{ formState.m1name }}
+                </span>
+                <span class="move-right">{{ formState.m1T }}</span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />
+                  {{ formState.m2name }}
+                </span>
+                <span class="move-right">{{ formState.m2T }}</span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-up" />
+                  {{ formState.m3name }}
+                </span>
+                <span class="move-right">{{ formState.m3T }}</span>
+                <a-divider />
+              </a-col>
+            </a-row>
+          </sdCards>
+        </a-col>
+        <a-col :xs="24">
+          <sdCards title="RECENT LANDINGS" caption>
+            <a-row :gutter="30">
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />
+                  {{ formState.m1name }}
+                </span>
+                <span class="move-right">{{ formState.m1L }}</span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />
+                  {{ formState.m2name }}
+                </span>
+                <span class="move-right">{{ formState.m2L }}</span>
+                <a-divider />
+              </a-col>
+              <a-col :xs="24" :md="12" :lg="8">
+                <span>
+                  <font-awesome-icon class="icon" icon="fa-solid fa-square-caret-down" />
+                  {{ formState.m3name }}
+                </span>
+                <span class="move-right">{{ formState.m3L }}</span>
+                <a-divider />
+              </a-col>
+            </a-row>
+          </sdCards>
+        </a-col>
+      </a-row>
+    </a-spin>
   </Main>
 </template>
 <script>
 import { defineComponent, onMounted, reactive } from "vue";
-import { Main } from "../styled";
+import { Main, CardToolbox } from "../styled";
 import flight from "../../server/Flight";
 import moment from "moment";
+import { ContactPageheaderStyle } from "./style";
 
 export default defineComponent({
   components: {
     Main,
+    CardToolbox,
+    ContactPageheaderStyle
   },
   setup() {
-    onMounted(() => {
-      flight.getRecentTakeoffsLandings().then((results) => {
+    onMounted(async () => {
+
+      await flight.getRecentTakeoffsLandings().then(results => {
         formState.m1name = results.m1name;
         formState.m2name = results.m2name;
         formState.m3name = results.m3name;
@@ -273,10 +247,10 @@ export default defineComponent({
           formState.takeoffExpiry = moment(takeoffExpirydaye)
             .add({ days: 90 })
             .format("MMMM Do YYYY");
-          console.log("ff", moment(takeoffExpirydaye).add({ days: 90 }));
+          // console.log("ff", moment(takeoffExpirydaye).add({ days: 90 }));
         }
-
-        console.log("res", results);
+        formState.loader = false;
+        // console.log("res", results);
       });
     });
 
@@ -294,12 +268,13 @@ export default defineComponent({
       recentLandings: [],
       takeoffExpiry: "No Data",
       landingExpiry: "",
+      loader: true
     });
 
     return {
-      formState,
+      formState
     };
-  },
+  }
 });
 </script>
 

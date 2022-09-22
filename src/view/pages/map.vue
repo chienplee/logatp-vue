@@ -1,5 +1,14 @@
 <template>
+  <CardToolbox>
+    <ContactPageheaderStyle>
+      <sdPageHeader title="MAP">
+        <template #subTitle></template>
+      </sdPageHeader>
+    </ContactPageheaderStyle>
+  </CardToolbox>
   <Main>
+    <a-spin :spinning="formState.loader" class size="large">
+
     <sdCards title="Map">
       <a-tabs :tab-position="tabPosition" v-model:activeKey="activeKey1">
         <a-tab-pane key="1" type="card">
@@ -14,7 +23,7 @@
               style="width: 100%; height: 500px"
               :zoom="2"
             >
-              <MarkerCluster  >
+              <MarkerCluster>
                 <p v-for="(marker,index) in formState.markerpointer" :key="index">
                   <Polyline :options="{path:marker}" />
                   <Marker
@@ -22,12 +31,14 @@
                     :options="{ position: location, }"
                     :key="i"
                   >
-                   <InfoWindow>
-                  <p><img :src="location.countryCode" style="width: 24px;margin-right: 10px;"/>{{location.label}}</p>
-                <span>{{location.city}}, {{location.country}}</span>
-                  </InfoWindow>
+                    <InfoWindow>
+                      <p>
+                        <img :src="location.countryCode" style="width: 24px;margin-right: 10px;" />
+                        {{location.label}}
+                      </p>
+                      <span>{{location.city}}, {{location.country}}</span>
+                    </InfoWindow>
                   </Marker>
-                 
                 </p>
               </MarkerCluster>
             </GoogleMap>
@@ -43,6 +54,7 @@
         </a-tab-pane>
       </a-tabs>
     </sdCards>
+    </a-spin>
 
     <!-- <p>{{formState.markerpointer.length}}</p> -->
   </Main>
@@ -52,7 +64,7 @@
 import { defineComponent, ref, onMounted, reactive } from "vue";
 import { Main } from "../styled";
 // import { GoogleMap } from "vue3-google-map";
-import countries from "../../helper/countryData.json"
+import countries from "../../helper/countryData.json";
 import Flight from "../../server/Flight";
 import {
   GoogleMap,
@@ -73,12 +85,12 @@ export default defineComponent({
   },
   setup() {
     const tabPosition = ref("left");
-    onMounted(() => {
-      Flight.getFlightsForMap().then(res => {
+    onMounted(async() => {
+      await Flight.getFlightsForMap().then(res => {
         // console.log(res.airpots)
         for (var arr of res.airpots) {
           if (arr[0]) {
-            console.log(arr[0].get("city"));
+            // console.log(arr[0].get("city"));
             formState.markerpointer.push([
               {
                 lat: arr[0].get("latitude"),
@@ -100,11 +112,14 @@ export default defineComponent({
           }
         }
       });
+      formState.loader=false
     });
 
     const formState = reactive({
       flight: "",
-      markerpointer: []
+      markerpointer: [],
+      loader: true
+
     });
     return {
       activeKey1: ref("1"),

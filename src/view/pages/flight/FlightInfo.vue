@@ -4,7 +4,7 @@
       <sdPageHeader title="Flight Information">
       <template v-slot:buttons>
         <div class="page-header-actions">
-          <router-link :to="{ name: 'edit', params: { flightId: id } }">
+          <router-link :to="{ name: 'editFlight', params: { flightId: id } }">
             <sdButton size="small" type="primary">
               <sdFeatherIcons type="edit" size="14" />
               Edit Flight
@@ -23,6 +23,8 @@
   </CardToolbox>
 
   <Main>
+  <a-spin :spinning="flightReactive.loader" class size="large">
+    
     
     <a-tabs v-model:activeKey="activeKey" type="card">
       <a-tab-pane key="1" tab="Flight Info">
@@ -107,6 +109,7 @@
         </a-row>
       </a-tab-pane>
     </a-tabs>
+    </a-spin>
   </Main>
 </template>
 <script>
@@ -144,7 +147,8 @@ export default defineComponent({
       outTime: '',
       offTime: '',
       onTime: '',
-      inTime:''
+      inTime:'',
+      loader:true
     })
     
     onMounted( async () => {
@@ -159,6 +163,7 @@ export default defineComponent({
       flightReactive.offTime = flightReactive.flight.get('offTime')
       flightReactive.onTime = flightReactive.flight.get('onTime')
       flightReactive.inTime = flightReactive.flight.get('inTime')
+      flightReactive.loader=false
     })
 
     const getDuration = (f, l) => {

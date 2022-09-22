@@ -1,14 +1,18 @@
 <template>
+  <CardToolbox>
+    <ContactPageheaderStyle>
+      <sdPageHeader title="Settings">
+        <template #subTitle></template>
+      </sdPageHeader>
+    </ContactPageheaderStyle>
+  </CardToolbox>
   <Main>
     <sdCards title="APP RELATED">
       <a-tabs v-model:activeKey="activeKey1">
         <a-tab-pane key="1" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon
-                class="icon"
-                icon="fa-solid fa-circle-user"
-              />Profile
+              <font-awesome-icon class="icon" icon="fa-solid fa-circle-user" />Profile
             </span>
           </template>
           <Profile />
@@ -16,8 +20,7 @@
         <a-tab-pane key="2" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon class="icon" icon="fa-solid fa-gear" />
-              General
+              <font-awesome-icon class="icon" icon="fa-solid fa-gear" />General
             </span>
           </template>
           <General />
@@ -25,11 +28,7 @@
         <a-tab-pane key="3" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon
-                class="icon"
-                icon="fa-solid fa-file-arrow-up"
-              />
-              Export
+              <font-awesome-icon class="icon" icon="fa-solid fa-file-arrow-up" />Export
             </span>
           </template>
           <Export />
@@ -50,10 +49,7 @@
         <a-tab-pane key="2" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon
-                class="icon"
-                icon="fa-solid fa-circle-user"
-              />Remove Duplicates
+              <font-awesome-icon class="icon" icon="fa-solid fa-circle-user" />Remove Duplicates
             </span>
           </template>
           <Duplicate />
@@ -69,47 +65,32 @@
               to Log ATP PRO
             </span>
           </template>
-          <p>Profile Page</p>
+          <Pro />
         </a-tab-pane>
         <a-tab-pane key="2" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon class="icon" icon="fa-solid fa-lock" />
-              Privacy Policy
+              <font-awesome-icon class="icon" icon="fa-solid fa-lock" />Privacy Policy
             </span>
           </template>
-          <a
-            href="https://logatp.com/privacy.html"
-            target="_blank"
-            >Click to read Privacy Policy</a
-          >
+          <a href="https://logatp.com/privacy.html" target="_blank">Click to read Privacy Policy</a>
         </a-tab-pane>
         <a-tab-pane key="3" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon class="icon" icon="fa-solid fa-file-lines" />
-              Terms of Use
+              <font-awesome-icon class="icon" icon="fa-solid fa-file-lines" />Terms of Use
             </span>
           </template>
-          <a
-            href="https://logatp.com/terms.html"
-            target="_blank"
-            >Click to read Terms & Conditions</a
-          >
+          <a href="https://logatp.com/terms.html" target="_blank">Click to read Terms & Conditions</a>
         </a-tab-pane>
-        
+
         <a-tab-pane key="4" type="card">
           <template #tab>
             <span>
-              <font-awesome-icon
-                class="icon round"
-                icon="fa-solid fa-circle-info"
-              />
-              About
+              <font-awesome-icon class="icon round" icon="fa-solid fa-circle-info" />About
             </span>
-            
           </template>
-         <About />
+          <About />
         </a-tab-pane>
       </a-tabs>
     </sdCards>
@@ -122,8 +103,9 @@ import { Main } from "../styled";
 import Profile from "./settings/profile.vue";
 import General from "./settings/general.vue";
 import Export from "./settings/export.vue";
-import About from "./settings/About.vue"
-import Duplicate from "./settings/Duplicate.vue"
+import About from "./settings/About.vue";
+import Duplicate from "./settings/Duplicate.vue";
+import Pro from "../../customComponents/pro.vue"
 
 export default defineComponent({
   components: {
@@ -132,14 +114,15 @@ export default defineComponent({
     General,
     Export,
     About,
-    Duplicate
+    Duplicate,
+    Pro
   },
   setup() {
     return {
       activeKey1: ref("1"),
       activeKey2: ref("1"),
-      activeKey3: ref("1"),
+      activeKey3: ref("1")
     };
-  },
+  }
 });
 </script>

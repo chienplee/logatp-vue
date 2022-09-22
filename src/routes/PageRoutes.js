@@ -61,14 +61,28 @@ export default [
       ),
   },
   {
+    path: "/airplanes/:planeid",
+    name: "airplaneInfo",
+    component: () =>
+      import(
+        /* webpackChunkName: "crews" */ "@/view/pages/airplane/airplaneInfo.vue"
+      ),
+  },
+  {
     path: "/crews/edit/:crewid",
-    name: "edit",
+    name: "editCrew",
     component: () =>
       import(/* webpackChunkName: "crews" */ "@/view/pages/crew/edit.vue"),
   },
   {
+    path: "/airplanes/editPlane/:planeId",
+    name: "editPlane",
+    component: () =>
+      import(/* webpackChunkName: "crews" */ "@/view/pages/airplane/editPlane.vue"),
+  },
+  {
     path: "/flights/edit/:flightId",
-    name: "edit",
+    name: "editFlight",
     component: () =>
       import(/* webpackChunkName: "crews" */ "@/view/pages/flight/edit.vue"),
   },
@@ -117,6 +131,57 @@ export default [
     name:"data",
     component: () =>
     import(/* webpackChunkName: "crews" */ "@/view/pages/data.vue"),
-  }
+  },{
+    path:"career",
+    name:"career",
+    component: () =>
+    import(/* webpackChunkName: "crews" */ "@/view/pages/career.vue"),
+  },{
+    path:"add-airplane",
+    name:"addAirplane",
+    component: () =>
+    import(/* webpackChunkName: "crews" */ "@/view/pages/AddAirplane.vue"),
+
+  },{
+    path:"airplanes",
+    name:"airplanes",
+    component: () =>
+    import(/* webpackChunkName: "crews" */ "@/view/pages/Airplanes.vue"),
+  },
+  // {
+  //   path:"table",
+  //   name:"table",
+  //   component: () =>
+  //   import(/* webpackChunkName: "crews" */ "@/view/pages/table.vue"),
+
+  // },
+  {
+    path:"add-experiece",
+    name:"addExperience",
+    component: () =>
+    import(/* webpackChunkName: "crews" */ "@/view/pages/AddExperience"),
+
+  },
+  {
+    path:"experiences",
+    name:"Experiences",
+    component: () =>
+    import(/* webpackChunkName: "crews" */ "@/view/pages/Experiences.vue"),
+
+  },
+  {
+    path: "/experiences/:expid",
+    name: "experienceInfo",
+    component: () =>
+      import(
+        /* webpackChunkName: "crews" */ "@/view/pages/experience/experienceInfo.vue"
+      ),
+  },
+  {
+    path: "/experiences/editExperience/:expid",
+    name: "editExperience",
+    component: () =>
+      import(/* webpackChunkName: "crews" */ "@/view/pages/experience/editExperience.vue"),
+  },
 
 ];

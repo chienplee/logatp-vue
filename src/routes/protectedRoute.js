@@ -33,9 +33,13 @@ const router = createRouter({
   ),
   linkExactActiveClass: "active",
   routes,
+  // scrollBehavior: ()=>{
+  //   return { x: 0, y: 0 };
+  // }
 });
 
 router.beforeEach((to, from, next) => {
+  window.scrollTo(0, 0)
   console.log(store.state.auth);
   console.log(to, store);
   if (to.meta.auth && store.state.auth.login) {

@@ -48,15 +48,16 @@ const ForgotPassword = defineComponent({
       console.log("forgot");
       const Users = Parse.Object.extend("User");
       const query = new Parse.Query(Users);
-      query.equalTo("email", formState.email);
+      query.equalTo("username", formState.email);
       const checkUser = await query.first();
-      console.log("checkUser", checkUser.id);
+      // console.log("checkUser", checkUser.id);
 
       if (!checkUser) {
         message.error("User Not Found");
       } else {
         Parse.User.requestPasswordReset(formState.email)
-          .then(() => {
+          .then((obj) => {
+            console.log("obj",obj)
             message.success("Reset password link sent to register mail");
           })
           .catch((error) => {

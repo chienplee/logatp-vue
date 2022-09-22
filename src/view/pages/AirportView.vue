@@ -1,4 +1,11 @@
 <template>
+  <CardToolbox>
+    <ContactPageheaderStyle>
+      <sdPageHeader title="Airport View">
+        <template #subTitle></template>
+      </sdPageHeader>
+    </ContactPageheaderStyle>
+  </CardToolbox>
   <Main>
     <a-form>
       <a-row :gutter="25">
@@ -7,23 +14,20 @@
             <a-row :gutter="30" class="center">
               <a-col>
                 <h1>Enter an airport code to start</h1>
-                <a-input
-                  placeholder="Eg. KLAX"
-                  v-model:value="formState.searchCity"
-                />
-                <sdButton @click="search()" type="primary" html-type="submit"
-                  >Search</sdButton
-                >
+                <a-input placeholder="Eg. KLAX" v-model:value="formState.searchCity" />
+                <sdButton @click="search()" type="primary" html-type="submit">Search</sdButton>
               </a-col>
             </a-row>
           </sdCards>
         </a-col>
       </a-row>
     </a-form>
- <!-- :center="{
+    <!-- :center="{
           lat: marker.markerOptions.position.lat,
           lng: marker.markerOptions.position.lng,
-        }" -->
+    }"-->
+    <a-spin :spinning="formState.loader" class size="large">
+
     <sdCards>
       <GoogleMap
         v-if="formState.flag"
@@ -31,12 +35,11 @@
         style="width: 100%; height: 500px"
         :zoom="formState.zoom"
         :center="formState.center"
-       
       >
         <Marker v-if="formState.marker" :options="marker.markerOptions" />
-  
       </GoogleMap>
     </sdCards>
+    </a-spin>
   </Main>
 </template>
 <script>
@@ -50,7 +53,7 @@ export default defineComponent({
   components: {
     Main,
     GoogleMap,
-    Marker,
+    Marker
     // InfoWindow
   },
 
@@ -59,60 +62,60 @@ export default defineComponent({
     const formState = reactive({
       searchCity: "",
       flag: true,
-      zoom:1,
-      center:{
-        lat:44,
-        lng:35
+      zoom: 1,
+      center: {
+        lat: 44,
+        lng: 35
       },
-      marker:false
+      marker: false,
+      loader:false
     });
 
     const marker = reactive({
       markerOptions: {
         position: {
           lat: 0,
-          lng: 0,
+          lng: 0
         },
         label: "",
-        title: "",
-      },
+        title: ""
+      }
     });
 
-    const search = () => {
+    const search = async() => {
       formState.flag = false;
-      formState.zoom=16
+      formState.zoom = 16;
+      formState.loader=true
 
-      airports
-        .getAirports(formState.searchCity.toUpperCase())
-        .then((results) => {
-          formState.marker=true
-          console.log("res",results)
-          formState.flag = true;
-          console.log("sc", formState.searchCity);
-        if(results){
-            for (const i of results) {
-            
-              marker.markerOptions.position.lat = i.lat;
-              marker.markerOptions.position.lng = i.long;
-              formState.center.lat=i.lat
-              formState.center.lng=i.long
+      await airports.getAirports(formState.searchCity.toUpperCase()).then(results => {
+        formState.marker = true;
+        // console.log("res", results);
+        formState.flag = true;
+        // console.log("sc", formState.searchCity);
+        if (results) {
+          for (const i of results) {
+            marker.markerOptions.position.lat = i.lat;
+            marker.markerOptions.position.lng = i.long;
+            formState.center.lat = i.lat;
+            formState.center.lng = i.long;
 
-              marker.markerOptions.label = i.city;
-              console.log("m", marker);
-            
+            marker.markerOptions.label = i.city;
+            // console.log("m", marker);
 
-            console.log(i.city);
+            // console.log(i.city);
           }
         }
-        });
+      });
+      formState.loader=false
+
     };
 
     return {
       formState,
       search,
-      marker,
+      marker
     };
-  },
+  }
 });
 </script>
 <style scoped>

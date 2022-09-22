@@ -26,7 +26,7 @@
       </sdPageHeader>
     </ContactPageheaderStyle>
   </CardToolbox>
-  <!-- <a-spin :spinnig="false" size="large"> -->
+  <a-spin :spinning="pageSettings.loader" class="" size="large">
   <Main>
     <a-row :gutter="25">
       <a-col
@@ -42,8 +42,10 @@
         </sdCards>
       </a-col>
     </a-row>
+
   </Main>
-  <!-- </a-spin> -->
+
+  </a-spin>
 </template>
 <script>
 import { defineComponent, reactive, onMounted, computed } from "vue";
@@ -61,9 +63,17 @@ export default defineComponent({
   },
   setup() {
     const pageSettings = reactive({
-      loader: false,
+      loader: true,
       users: [],
       search: "",
+      limit:16,
+      total:50,
+      skip:0,
+      temp:[],
+      current:1,
+      bottom:true,
+
+      
     });
 
     const searchCrews = computed(() => {
@@ -73,10 +83,40 @@ export default defineComponent({
           .includes(pageSettings.search.toLowerCase());
       });
     });
+    const getNextRecords = async () => {
+      window.onscroll = async () => {
+        let documentHeight = document.body.scrollHeight;
+        let currentScroll = window.scrollY + window.innerHeight;
+        // When the user is [modifier]px from the bottom, fire the event.
+        let modifier = 50; 
+        if(currentScroll + modifier > documentHeight && pageSettings.bottom) {
+            
+            console.log('You are at the bottom!',pageSettings.bottom)
+            pageSettings.bottom=false
+            await getData();
 
+        }
+        if(currentScroll + modifier < documentHeight){
+        console.log('else!',pageSettings.bottom)
+        pageSettings.bottom=true          
+        }
+
+    }
+    };
     onMounted(async () => {
+      getData();
+      getNextRecords();
+      pageSettings.total= await crew.getCrewsLength();
+      
+    });
+    const getData=async()=>{
+      if(pageSettings.total==pageSettings.users.length){
+        return
+      }
       try {
-        crew.getCrewMembers().then((results) => {
+        pageSettings.loader=true
+        pageSettings.skip = (pageSettings.current - 1) * pageSettings.limit;
+        crew.getCrewMembers(pageSettings.limit,pageSettings.skip).then((results) => {
           for (const object of results) {
             const firstName = object.get("firstName");
             const lastName = object.get("lastName");
@@ -86,7 +126,7 @@ export default defineComponent({
             const LicenceNumber = object.get("LicenceNumber");
             const crewid = object.id;
 
-            pageSettings.users.push({
+            pageSettings.temp.push({
               firstName: firstName,
               lastName: lastName,
               Position: Position,
@@ -96,15 +136,23 @@ export default defineComponent({
               crewId: crewid,
             });
           }
+      pageSettings.users.push(...pageSettings.temp);
+      pageSettings.temp=[];
+
+          pageSettings.loader=false
+          pageSettings.current++;
         });
       } catch (error) {
         console.log(error);
-      }
-    });
+        pageSettings.loader=false
 
+      }
+    };
     return {
       pageSettings,
       searchCrews,
+      getNextRecords,
+      getData
     };
   },
 });

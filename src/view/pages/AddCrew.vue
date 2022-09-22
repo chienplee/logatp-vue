@@ -5,7 +5,25 @@
   <div>
     <a-spin :spinning="formState.loader" class="" size="large">
       <sdPageHeader :title="id ? 'Edit Crew' : 'Add Crew'">
-        <template v-slot:buttons>
+        <template  v-slot:buttons>
+        <a-row>
+                       <a-col >
+                        <a-form> 
+                      <a-form-item
+                        ref="self"
+                        label="This is me"
+                        name="self"
+                      >
+
+                        <a-switch
+                          v-model:checked="formState.self"
+                          @change="selfChanged"
+                        />
+                      </a-form-item>
+                        </a-form>
+
+                    </a-col>
+                    </a-row>
           <!-- <div class="page-header-actions">
           <sdCalendarButton />
           <sdExportButton />
@@ -32,7 +50,7 @@
                 <FormValidationWrap>
                   <VerticalFormStyleWrap>
                     <a-row :gutter="30">
-                      <a-col :md="8" :xs="24">
+                      <a-col :md="6" :xs="24">
                         <a-form-item
                           ref="firstName"
                           name="firstName"
@@ -44,7 +62,7 @@
                           />
                         </a-form-item>
                       </a-col>
-                      <a-col :md="8" :xs="24">
+                      <a-col :md="6" :xs="24">
                         <a-form-item
                           ref="lastName"
                           name="lastName"
@@ -56,15 +74,16 @@
                           />
                         </a-form-item>
                       </a-col>
-                      <a-col :md="8" :xs="24">
+                      <a-col :md="6" :xs="24">
                         <a-form-item
                           ref="Select Captain"
-                          label="Position"
+                          label=""
                           name="Select Captain"
                         >
                           <a-select
                             v-model:value="formState.Position"
                             style="width: 270px"
+                            @change="onChange"
                           >
                             <a-select-option value="">
                               Select Captain
@@ -76,6 +95,18 @@
                               {{ pro }}
                             </a-select-option>
                           </a-select>
+                        </a-form-item>
+                      </a-col>
+                      <a-col :md="6" :xs="24">
+                        <a-form-item
+                          ref=""
+                          name=""
+                          label=""
+                        >
+                          <a-input
+                            v-model:value="formState.Position1"
+                            placeholder="Enter Captain"
+                          />
                         </a-form-item>
                       </a-col>
                     </a-row>
@@ -229,7 +260,7 @@ export default defineComponent({
        addCrew.set({
           firstName: formState.firstName,
           lastName: formState.lastName,
-          Position: formState.Position,
+          Position: formState.Position1,
           EmployeeId: formState.EmployeeId,
           Nationality: formState.Nationality,
           LicenceNumber: formState.LicenceNumber,
@@ -239,18 +270,18 @@ export default defineComponent({
          await addCrew.setACL(acl);
         addCrew.save().then(
           
-          (crew) => {
+          () => {
         message.success("New Crew is added ");
         context.emit('added');
 
             (formState.firstName = ""),
               (formState.lastName = ""),
-              (formState.Position = ""),
+              (formState.Position1 = ""),
               (formState.EmployeeId = ""),
               (formState.Nationality = ""),
               (formState.LicenceNumber = ""),
               (formState.Note = ""),
-              console.log(crew);
+              // console.log(crew);
             formState.loader = false;
           },
           (error) => {
@@ -263,12 +294,14 @@ export default defineComponent({
         );
         }
         else {
-          console.log("hello")
+          // console.log("hello")
       var query = new Parse.Query("Crew");
+      crew.setSelf(formState.self,props.id);
+
       query.get(props.id).then(async(obj)=>{
    obj.set("firstName",formState.firstName)
           obj.set("lastName",formState.lastName)
-          obj.set("Position",formState.Position)
+          obj.set("Position",formState.Position1)
           obj.set("EmployeeId",formState.EmployeeId)
           obj.set("Nationality",formState.Nationality)
           obj.set("LicenceNumber",formState.LicenceNumber)
@@ -277,7 +310,7 @@ export default defineComponent({
         message.success("Crew id Updated");
             (formState.firstName = ""),
               (formState.lastName = ""),
-              (formState.Position = ""),
+              (formState.Position1 = ""),
               (formState.EmployeeId = ""),
               (formState.Nationality = ""),
               (formState.LicenceNumber = ""),
@@ -310,14 +343,19 @@ export default defineComponent({
       }
       return (formState.realmId = result);
     };
+    const onChange = ()=>{
+      // console.log(formState.Position)
+      formState.Position1=formState.Position
+    }
 
-    onMounted(() => {
+    onMounted(async() => {
 
   //  get crew details to update
   if(props.id){
-    console.log("id",props.id)
+    formState.loader=true
+    // console.log("id",props.id)
   //  const getcrewquery = new Parse.Query("Crew");
-      crew.getPointer(props.id).then(
+     await crew.getPointer(props.id).then(
         (obj) => {
           const firstName = obj.get("firstName");
           const lastName = obj.get("lastName");
@@ -325,20 +363,23 @@ export default defineComponent({
           const EmployeedId = obj.get("EmployeeId");
           const LicenceNumber = obj.get("LicenceNumber");
           const Nationality = obj.get("Nationality");
-
+          const self=obj.get("isSelf");
           const Note = obj.get("Note");
           formState.firstName = firstName;
           formState.lastName = lastName;
-          formState.Position = Position;
+          formState.Position1 = Position;
           formState.EmployeeId = EmployeedId;
           formState.Note = Note;
           formState.LicenceNumber = LicenceNumber;
           formState.Nationality = Nationality;
+          formState.self=self;
         },
         (error) => {
           console.log(error);
         }
       );
+    formState.loader=false
+
 
   }
 
@@ -363,14 +404,18 @@ export default defineComponent({
       lastName: "",
       Positions: ["Captain", "Captain", "Captain"],
       Position: "",
+      Position1:"",
       Note: "",
       EmployeeId: "",
       Nationality: "",
       LicenceNumber: "",
       realmId: "",
       loader: false,
+      self:false,
     });
-
+    const selfChanged=()=>{
+      console.log("self," ,formState.self);
+    };
     const rules = {
       firstName: [
         {
@@ -416,7 +461,7 @@ export default defineComponent({
           trigger: "blur",
         },
       ],
-      Position: [
+      Position1: [
         {
           required: true,
           message: "Please Select Postion",
@@ -439,6 +484,8 @@ export default defineComponent({
       onFinishFailed,
       data1,
       countriesData,
+      selfChanged,
+      onChange
     };
   },
 });

@@ -29,6 +29,12 @@
         <span> Summary </span>
       </router-link>
     </a-menu-item>
+     <a-menu-item key="career">
+      <router-link to="/career">
+        <font-awesome-icon class="icon" :icon="['fas', 'fa-ribbon']" />
+        <span> Career </span>
+      </router-link>
+    </a-menu-item>
 
     <a-menu-item key="Flights">
       <router-link to="/flights">
@@ -41,6 +47,18 @@
       <router-link :to="{ name: 'crews' }">
         <font-awesome-icon icon="fas fa-user-friends" />
         <span> Crews </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="airplanes">
+      <router-link :to="{ name: 'airplanes' }">
+        <font-awesome-icon icon="fas fa-plane-up" />
+        <span> Airplanes </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="experiences">
+      <router-link :to="{ name: 'Experiences' }">
+        <font-awesome-icon icon="fas fa-location-arrow" />
+        <span> Experiences </span>
       </router-link>
     </a-menu-item>
     <a-menu-item key="map">
@@ -73,6 +91,18 @@
       <router-link to="/add-crew">
         <font-awesome-icon class="icon" icon="fas fa-user-tie" />
         <span> Add Crew </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="addAirplane">
+      <router-link to="/add-airplane">
+        <font-awesome-icon class="icon" icon="fas fa-plane-up" />
+        <span> Add Airplane </span>
+      </router-link>
+    </a-menu-item>
+    <a-menu-item key="addExperience">
+      <router-link to="/add-experiece">
+        <font-awesome-icon class="icon" icon="fas fa-location-arrow" />
+        <span> Add Experience </span>
       </router-link>
     </a-menu-item>
     <a-menu-item key="settings">

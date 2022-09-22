@@ -1,6 +1,8 @@
 <template>
   <Main>
     <a-form :model="formState">
+    <a-spin :spinning="formState.loader" class size="large">
+      
       <a-row :gutter="25">
         <a-col :xs="24">
           <sdCards
@@ -98,6 +100,7 @@
           </sdCards>
         </a-col>
       </a-row>
+      </a-spin>
     </a-form>
   </Main>
 </template>
@@ -118,12 +121,14 @@ export default defineComponent({
     onMounted(async () => {
     
    
-  airlines.getAirlines().then(e=>{
+  await airlines.getAirlines().then(e=>{
     console.log(e)
     for(var i in e){
       formState.dataSource.push(e[i].airlinename)
     }
   })
+
+  formState.loader=false
 
 
  
@@ -155,10 +160,12 @@ export default defineComponent({
       dataSource: [],
       value: "",
       search: "",
+      loader:true
       
     });
 
     const setUserDetails = async () => {
+      formState.loader=true
    
       const user1 = await user.getCurrentUser();
       await user1.set("firstName", formState.fname);
@@ -172,6 +179,8 @@ export default defineComponent({
       await user1.save().then(() => {
         console.log("updated");
       });
+      formState.loader=false
+
     };
     const onSelect = (e) => {
       formState.value = e;

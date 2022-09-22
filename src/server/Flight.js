@@ -2,7 +2,8 @@ import Parse from "parse";
 import moment from "moment";
 import JsHelper from "../helper/JsHelper";
 import user from "./user";
-
+import experience from "./experience";
+import circularview from "./circularview";
 export default {
   async getLastFlightRecord() {
     var obj = {};
@@ -16,7 +17,7 @@ export default {
       // console.log("results",results);
       try {
         for (const object of flightData) {
-          const Date = object.get("FlightDate");
+          const Date = object.get("flightDate");
           const Destination = object.get("destination");
           const Departure = object.get("departure");
           const Airplane = object.get("airplanePointer");
@@ -34,6 +35,7 @@ export default {
             crew2: crew2,
             crew3: crew3,
             crew4: crew4,
+            id:object.id
           };
           //  arr.push({ name: LastName });
           //  console.log("last flight object", obj);
@@ -44,14 +46,22 @@ export default {
       }
     }
   },
-  async getFlights() {
+  async getFlights(limit, skip) {
     const flight = new Parse.Query("Flight");
+    limit ? flight.limit(limit) : "";
+    skip ? flight.skip(skip) : "";
     flight.descending("createdAt");
     var flightData = await flight.find();
     if (flightData.length) {
       return flightData;
     }
     return [];
+  },
+  async getFlightsLength() {
+    const flight = new Parse.Query("Flight");
+    flight.descending("createdAt");
+    var num = await flight.count();
+    return num;
   },
 
   async getCurrentUserFlights() {
@@ -105,32 +115,30 @@ export default {
   },
 
   async getFlightsForMap() {
-    var obj ={
-      deps:[],
-      dests:[],
-      airpots:[]
-    }
-   if(user.getCurrentUser()){
-    const flight = new Parse.Query("Flight");
-    
-    flight.include("departureAirport");
-    flight.include("destinationAirport");
-    var flightData = await flight.find();
+    var obj = {
+      deps: [],
+      dests: [],
+      airpots: [],
+    };
+    if (user.getCurrentUser()) {
+      const flight = new Parse.Query("Flight");
 
-    for(const object of flightData) {
-      // console.log("obj",object.get("departureAirport"))
-      obj.deps.push(object.get("departureAirport"))
-      obj.dests.push(object.get("destinationAirport"))
-      obj.airpots.push([object.get("departureAirport"),object.get("destinationAirport")])
+      flight.include("departureAirport");
+      flight.include("destinationAirport");
+      var flightData = await flight.find();
 
+      for (const object of flightData) {
+        // console.log("obj",object.get("departureAirport"))
+        obj.deps.push(object.get("departureAirport"));
+        obj.dests.push(object.get("destinationAirport"));
+        obj.airpots.push([
+          object.get("departureAirport"),
+          object.get("destinationAirport"),
+        ]);
+      }
 
-     }
-   
-    
       return obj;
-   }
-    
-  
+    }
   },
 
   async getLastFiveFlightsRecored() {
@@ -146,7 +154,7 @@ export default {
       }
       query1.skip(limit);
       flightData = await query1.find();
-      console.log("5 flights", flightData);
+      // console.log("5 flights", flightData);
       // console.log("results",results);
       try {
         for (const object of flightData) {
@@ -156,7 +164,7 @@ export default {
           const departureAirport = object.get("departure");
           const destinationAirport = object.get("destination");
           const deptodes = departureAirport + "->" + destinationAirport;
-          console.log(departureAirport, destinationAirport);
+          // console.log(departureAirport, destinationAirport);
           const FlightNumber = object.get("flightNumber");
           const BlockTime = object.get("blockTime");
           // console.log("Flight",FlightDate)
@@ -173,7 +181,7 @@ export default {
       } catch (error) {
         console.error("Error", error);
       }
-      console.log("onj", obj);
+      // console.log("onj", obj);
     }
   },
 
@@ -186,6 +194,9 @@ export default {
       HourswithMinutes: "",
       PFLanding: 0,
       PFTakeoff: 0,
+      totaldays1: 1,
+      picFlights:0,
+      pilotInCommandHours:0
     };
     const currentUser = Parse.User.current();
     if (currentUser) {
@@ -213,6 +224,10 @@ export default {
           const at = object.get("aircraftType");
           const depAir = object.get("departure");
           const desAir = object.get("destination");
+          const picTime = object.get("picTime");
+
+          
+
 
           const BlockTime = object.get("blockTime");
           // console.log("bt", BlockTime);
@@ -220,11 +235,30 @@ export default {
           if (BlockTime) {
             // console.log("qqq",BlockTime)
             obj.Hours += BlockTime;
+            obj.pilotInCommandHours+=BlockTime
+            // obj.hrs.push(BlockTime)
+          }
+          if (picTime) {
+            // console.log("qqq",BlockTime)
+            obj.picFlights += 1;
             // obj.hrs.push(BlockTime)
           }
           obj.aircrafts.push(ar, at);
           obj.airports.push(depAir, desAir);
         }
+        // console.log("line-249",obj.Hours)
+
+        await circularview.getCircularViews().then(async(res)=>{
+          // console.log(res.experienceHours)
+          if(res.experienceHours){
+            await experience.sumOfExpHours().then(sum=>{
+              // console.log(sum)
+              obj.Hours+=sum
+            })
+
+          }
+        })
+        // console.log(obj.Hours)
 
         obj.HourswithMinutes = JsHelper.mintoHourswithMin(obj.Hours);
         return obj;
@@ -238,6 +272,7 @@ export default {
       dates: [],
       Hours: 0,
       HourswithMinutes: "",
+      ndays: n,
     };
     const currentUser = Parse.User.current();
     if (currentUser) {
@@ -250,6 +285,7 @@ export default {
             "MM/DD/YYYY"
           );
           const dateTo = moment(Date.now()).format("MM/DD/YYYY");
+          // console.log( moment(new Date()).format("DD-MMMM-YYYY"))
           const FlightDate = moment(object.get("flightDate")).format(
             "MM/DD/YYYY"
           );
@@ -301,7 +337,7 @@ export default {
       // console.log(lastDay);
 
       const currentYear = new Date().getFullYear();
-      console.log(currentYear);
+      // console.log(currentYear);
 
       const firstDayYear = new Date(currentYear, 0, 1);
       const q1f = new Date(currentYear, 3, 1);
@@ -315,13 +351,13 @@ export default {
       const q4f = new Date(currentYear, 0, 1);
       const q4L = new Date(currentYear, 2, 31);
 
-      console.log("q1f", q1f);
-      console.log("q1L", q1L);
+      // console.log("q1f", q1f);
+      // console.log("q1L", q1L);
 
-      console.log(firstDayYear);
+      // console.log(firstDayYear);
 
       const lastDayYear = new Date(currentYear, 11, 31);
-      console.log(lastDayYear);
+      // console.log(lastDayYear);
 
       obj.month = moment(firstday).format("MMMM ");
       obj.year = moment(firstday).format("YYYY ");
@@ -375,7 +411,7 @@ export default {
       }
     }
   },
-  async getSummary(year) {
+  async getCareerData() {
     var obj = {
       approachTypes: [],
       aircrafts: [],
@@ -398,13 +434,7 @@ export default {
       const query1 = new Parse.Query("Flight");
       var flightData = await query1.find();
       obj.flights = flightData.length;
-      const setYear = "01" + "/" + "01" + "/" + year;
-      const now = new Date(setYear).getFullYear();
 
-      const firstday = new Date(now, 0, 1);
-      const lastDay = new Date(now, 11, 31);
-
-      // console.log("fs", firstday, "ls", lastDay);
       const pfTakeoffquery = new Parse.Query("Flight");
       pfTakeoffquery.equalTo("pfTakeoff", true);
       const pfTakeoffCount = await pfTakeoffquery.find();
@@ -438,9 +468,6 @@ export default {
       // console.log("results",results);
       try {
         for (const object of flightData) {
-          const FlightDate = moment(object.get("flightDate")).format(
-            "MM/DD/YYYY"
-          );
           const BlockTime = parseInt(object.get("blockTime"));
           const totalPayload = parseInt(object.get("totalPayload"));
           const flightplanDistance = parseInt(object.get("flightplanDistance"));
@@ -462,13 +489,8 @@ export default {
           if (flightplanDistance) {
             obj.totapFlightPlanDistance += flightplanDistance;
           }
-
-          if (JsHelper.dateCheck(firstday, lastDay, FlightDate)) {
-            // console.log("bt", BlockTime);
-            // console.log("yes");
-            if (BlockTime) {
-              obj.Hours += BlockTime;
-            }
+          if (BlockTime) {
+            obj.Hours += BlockTime;
           }
         }
 
@@ -481,29 +503,36 @@ export default {
   async getRecentTakeoffsLandings() {
     var obj = {
       m1name: "",
-      m2name:"",
-      m3name:"",
+      m2name: "",
+      m3name: "",
       m1T: 0,
       m2T: 0,
       m3T: 0,
-      m1L:0,
-      m2L:0,
-      m3L:0,
-      recentTakeoffs:[],
-      recentLandings:[],
-      dates:[]
-
+      m1L: 0,
+      m2L: 0,
+      m3L: 0,
+      recentTakeoffs: [],
+      recentLandings: [],
+      dates: [],
     };
 
     if (user.getCurrentUser()) {
-      console.log("hello");
-
-
+      // console.log("hello");
+    //  var limit =0
       const query = new Parse.Query("Flight");
+      query.descending("createdAt");
+      query.limit(3)
+      
       var flightData = await query.find();
-      const limit = flightData.length - 3;
-      query.skip(limit);
-      flightData = await query.find();
+      // console.log(flightData)
+
+      // if(flightData.length>3){
+      //   limit = flightData.length - 3;
+
+      // }
+      // query.skip(limit);
+
+      // flightData = await query.find();
       for (const object of flightData) {
         const Departure = object.get("departure");
         const Destination = object.get("destination");
@@ -511,85 +540,92 @@ export default {
         const FlightDate = moment(object.get("flightDate")).format(
           "MMMM Do YYYY"
         );
-        const FlightDates = moment(object.get("flightDate")).format("MM/DD/YYYY"
-          
+        const FlightDates = moment(object.get("flightDate")).format(
+          "MM/DD/YYYY"
         );
-        obj.recentTakeoffs.push({dep:Departure,date:FlightDate})
-        obj.dates.push(FlightDates)
-        obj.recentLandings.push({des:Destination,date:FlightDate})
+        obj.recentTakeoffs.push({ dep: Departure, date: FlightDate });
+        obj.dates.push(FlightDates);
+        obj.recentLandings.push({ des: Destination, date: FlightDate });
 
-
-        console.log(Departure,FlightDate)
-
+        // console.log(Departure, FlightDate);
       }
 
-
-      console.log("fd",flightData)
-
-
-
-
-
+      // console.log("fd", flightData);
 
       const query1 = new Parse.Query("Flight");
       query1.equalTo("pfTakeoff", true);
       var flightData1 = await query1.find();
-
+      // console.log("takeoffFl",flightData1)
 
       const query2 = new Parse.Query("Flight");
       query2.equalTo("pfLanding", true);
       var flightData2 = await query1.find();
+      // console.log("lanfindsflights",flightData2)
 
-      console.log("fd", flightData1);
+  
       const now = new Date();
 
       const firstday = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      console.log("fs", "ld", firstday, lastDay);
+      // console.log("fs", "ld", firstday, lastDay);
       obj.m1name = moment(firstday).format("MMMM ");
-
-      const lastmonthlastdate = moment()
-        .subtract(1, "months")
-        .startOf("month")
-        .format("MM/DD/YYYY");
-      console.log(lastmonthlastdate);
-      obj.m2name = moment(lastmonthlastdate).format("MMMM ");
-
 
       const lastmonthfirstdate = moment()
         .subtract(1, "months")
-        .endOf("month")
-        .format("MM/DD/YYYY");
-      console.log(lastmonthfirstdate);
-
-
-      const lastsecondsmonthlastdate = moment()
-        .subtract(2, "months")
         .startOf("month")
         .format("MM/DD/YYYY");
-      console.log(lastsecondsmonthlastdate);
-      obj.m3name = moment(lastsecondsmonthlastdate).format("MMMM");
+      // console.log(lastmonthlastdate);
+      obj.m2name = moment(lastmonthfirstdate).format("MMMM ");
 
+      const lastmonthlastdate = moment()
+        .subtract(1, "months")
+        .endOf("month")
+        .format("MM/DD/YYYY");
+      // console.log(lastmonthfirstdate);
 
       const lastsecondmonthfirstdate = moment()
         .subtract(2, "months")
+        .startOf("month")
+        .format("MM/DD/YYYY");
+      // console.log(lastsecondsmonthlastdate);
+      obj.m3name = moment(lastsecondmonthfirstdate).format("MMMM");
+
+      const lastsecondsmonthlastdate = moment()
+        .subtract(2, "months")
         .endOf("month")
         .format("MM/DD/YYYY");
-      console.log(lastsecondmonthfirstdate);
+      // console.log(lastsecondmonthfirstdate);
+      // console.log(firstday,lastDay,lastmonthfirstdate,lastmonthlastdate,lastsecondmonthfirstdate,lastsecondsmonthlastdate)
 
       try {
+      //  console.log('flightdata1',flightData1)
         for (const object of flightData1) {
+
           const FlightDate = moment(object.get("flightDate")).format(
             "MM/DD/YYYY"
           );
+          // console.log("FlightDate",FlightDate)
           if (JsHelper.dateCheck(firstday, lastDay, FlightDate)) {
-            obj.m1T += obj.m1T;
+            
+            obj.m1T += 1;
           }
-          if (JsHelper.dateCheck(lastmonthfirstdate, lastmonthlastdate, FlightDate)) {
-            obj.m2T += obj.m1T;
+          if (
+            JsHelper.dateCheck(
+              lastmonthfirstdate,
+              lastmonthlastdate,
+              FlightDate
+            )
+          ) {
+            obj.m2T += 1;
           }
-          if (JsHelper.dateCheck(lastsecondsmonthlastdate, lastsecondmonthfirstdate, FlightDate)) {
-            obj.m3T += obj.m3T;
+          if (
+            JsHelper.dateCheck(
+              lastsecondmonthfirstdate,
+              lastsecondsmonthlastdate,
+              FlightDate
+            )
+          ) {
+            obj.m3T += 1;
           }
         }
 
@@ -598,13 +634,26 @@ export default {
             "MM/DD/YYYY"
           );
           if (JsHelper.dateCheck(firstday, lastDay, FlightDate)) {
-            obj.m1L += obj.m1L;
+            // console.log("yes")
+            obj.m1L += 1;
           }
-          if (JsHelper.dateCheck(lastmonthfirstdate, lastmonthlastdate, FlightDate)) {
-            obj.m2L += obj.m1L;
+          if (
+            JsHelper.dateCheck(
+              lastmonthfirstdate,
+              lastmonthlastdate,
+              FlightDate
+            )
+          ) {
+            obj.m2L += 1;
           }
-          if (JsHelper.dateCheck(lastsecondsmonthlastdate, lastsecondmonthfirstdate, FlightDate)) {
-            obj.m3L += obj.m3L;
+          if (
+            JsHelper.dateCheck(
+              lastsecondmonthfirstdate,
+              lastsecondsmonthlastdate,
+              FlightDate
+            )
+          ) {
+            obj.m3L += 1;
           }
         }
         return obj;
