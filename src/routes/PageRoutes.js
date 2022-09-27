@@ -184,4 +184,32 @@ export default [
       import(/* webpackChunkName: "crews" */ "@/view/pages/experience/editExperience.vue"),
   },
 
+  //stripe
+  {
+    path: "/stripe",
+    name: "payment",
+    component: () =>
+      import(/* webpackChunkName: "crews" */ "@/view/pages/payment.vue"),
+  },
+  {
+    path: "/success",
+    name: "success",
+    component: () =>
+      import(/* webpackChunkName: "crews" */ "@/view/pages/success.vue"),
+  },{
+    path: "/error",
+    name: "error",
+    component: () =>
+      import(/* webpackChunkName: "crews" */ "@/view/pages/error.vue"),
+  },
+  {
+    path: "/selectPlan/:cusId/:priceId",
+    name: "selectPlan",
+    props: true,
+    component: () =>
+      import(/* webpackChunkName: "crews" */ "@/view/pages/selectPlan"),
+  },
+  
+
+
 ];

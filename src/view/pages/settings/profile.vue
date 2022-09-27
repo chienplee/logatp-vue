@@ -122,7 +122,7 @@ export default defineComponent({
     
    
   await airlines.getAirlines().then(e=>{
-    console.log(e)
+    // console.log(e)
     for(var i in e){
       formState.dataSource.push(e[i].airlinename)
     }

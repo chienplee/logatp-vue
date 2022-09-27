@@ -13,7 +13,7 @@ import "@/core/plugins/fonts";
 import "@/core/components/custom";
 import "@/core/components/style";
 import '@/core/plugins/apexcharts';
-
+// import { StripePlugin } from '@vue-stripe/vue-stripe';
 import sdButton from "../src/components/buttons/Buttons.vue";
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -26,7 +26,12 @@ import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 
 /* add icons to the library */
 library.add(faUserSecret)
-
+// const options = {
+//     pk: "pk_test_51L4JDISEvKMW8AqalKSC2LJYUuLwuONr0OOgoxwTOiXV8XRaLEeot4UApON2embEL18QCLRUl8JuP6ZYdqn7knxs00qaDCVDKw",
+    
+//   };
+  
+// app.use(StripePlugin, options);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.config.productionTip = false;
 app.use(store);
