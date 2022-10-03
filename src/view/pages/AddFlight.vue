@@ -1006,7 +1006,9 @@ export default defineComponent({
           });
           addFlight.setACL(acl);
           await addFlight.save().then(
-            () => {
+            async () => {
+              await Parse.Cloud.run("updateRealTrackFlightInfo")
+
               message.success("flight added");
               (flightState.PilotInCommand = ""), (flightState.Crew2 = "");
               (flightState.Crew3 = ""),
