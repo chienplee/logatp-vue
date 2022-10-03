@@ -1,6 +1,8 @@
 <template>
   <div>
     <Main>
+     
+
     <a-spin :spinning="formState.loader" class size="large">
 
       <a-form :model="formState">
@@ -12,7 +14,7 @@
                   <a-row :gutter="30">
                     <a-col :md="12" :xs="24">
                       <a-form-item label="See all future flights as PIC flights">
-                        <a-switch v-model:checked="formState.picFlghts" @change="setPicFlight()" />
+                        <a-switch v-model:checked="formState.picFlghts"  />
                       </a-form-item>
                     </a-col>
                     <a-col :md="12" :xs="24">
@@ -197,7 +199,8 @@ export default defineComponent({
           });
         }
         await circularView.setACL(acl);
-        circularView.save().then(() => {
+        circularView.save().then((res) => {
+          console.log(res)
                  message.success(" Success");
 
           console.log("Added");
@@ -232,6 +235,9 @@ export default defineComponent({
 
     };
     const setPicFlight = async()=>{
+      // formState.experienceHours = !formState.experienceHours
+
+      // console.log(formState.experienceHours)
       // var query = new Parse.Query("circularviews");
       // const data = await query.first();
       // console.log(data);

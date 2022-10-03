@@ -43,29 +43,43 @@
 
       <sdCards title="PRICING">
         <!-- <router-link :to="{name:'selectPlan',params:{cusId:'hi',priceId:'hgcy'},props:{name:'nagarjuna'}}"> -->
-        <a-button class="button" @click="modal2Visible = true">
+        
+        <a-tooltip  placement="top" :color="proFeaturesData.color">
+          <template #title>
+            <h4>{{proFeaturesData.proUser}}</h4>
+          </template>
+          <a-button
+          class="button"
+          :disabled="proFeaturesData.state"
+          @click="modal2Visible = true,monthlyPlan(),renderCard()"
+        >
           <font-awesome-icon icon="fa-solid fa-file-invoice-dollar" />
           <span class="custom">
             <span>&#8377;</span>
             869 INR/year
           </span>
         </a-button>
+        </a-tooltip>
         <!-- </router-link>s -->
 
-        <a-button class="button" @click="modal2Visible = true,renderCard()">
+        
+
+        <a-tooltip  placement="top" :color="proFeaturesData.color">
+          <template #title>
+            <h4>{{proFeaturesData.proUser}}</h4>
+          </template>
+          <a-button
+          class="button"
+          :disabled="proFeaturesData.state"
+          @click="modal2Visible = true,yearlyPlan(),renderCard()"
+        >
           <font-awesome-icon icon="fa-solid fa-file-invoice-dollar" />
           <span class="custom">
             <span>&#8377;</span>
             8500 INR/year
           </span>
         </a-button>
-      </sdCards>
-      <sdCards>
-        <div>
-          <!-- <div id="card"> -->
-          <!-- A Stripe Element will be inserted here. -->
-          <!-- </div> -->
-        </div>
+        </a-tooltip>
       </sdCards>
 
       <div>
@@ -73,13 +87,22 @@
           v-model:visible="modal2Visible"
           title="Enter Card Details"
           centered
-          @ok="modal2Visible = false"
+          @ok="pay(proFeaturesData.amount,proFeaturesData.plandId)"
         >
-          <!-- <Token /> -->
-          <div id="card">
-            <!-- A Stripe Element will be inserted here. -->
-          </div>
-          <button type="submit" @click="createT">Pay</button>
+          <a-spin :spinning="proFeaturesData.loader" class size="large">
+            <div>
+              <input class="subscriber-name" v-model="proFeaturesData.name" placeholder="Enter Name" />
+            </div>
+            <!-- <Token /> -->
+            <div id="card">
+              <!-- A Stripe Element will be inserted here. -->
+            </div>
+            <!-- <button type="submit" @click="createT">Subscribe</button> -->
+            <!-- <button
+              type="submit"
+              @click="pay(proFeaturesData.amount,proFeaturesData.plandId)"
+            >Subscribe</button> -->
+          </a-spin>
         </a-modal>
       </div>
     </Main>
@@ -91,10 +114,12 @@ import { defineComponent, ref, reactive, onMounted } from "vue";
 import { Main } from "./styled";
 import Parse from "parse";
 import admin from "../server/admin.js";
-import StripeService from "../server/stripe-service";
+// import StripeService from "../server/stripe-service";
 // import Token from "../customComponents/token.vue";
 
 import { loadStripe } from "@stripe/stripe-js";
+import { message } from "ant-design-vue";
+import moment from "moment";
 
 export default defineComponent({
   components: {
@@ -137,8 +162,15 @@ export default defineComponent({
       priceId1: "price_1Lmf6WSEvKMW8Aqat8IHEHeL",
       priceId2: "price_1LkLDFSEvKMW8AqatEuvc1Rl",
       modal1Visible: false,
-      card:null,
-      stripe:null
+      card: null,
+      stripe: null,
+      amount: null,
+      plandId: null,
+      loader: false,
+      state: false,
+      name: "",
+      proUser:"click here to subscribe",
+      color:"#8ba832"
     });
     const modal1Visible = ref(false);
     // let stripe = null;
@@ -146,135 +178,293 @@ export default defineComponent({
     // let elements = null;
     // var card = null;
     onMounted(async () => {
-      // admin.getAdminFunction().then(res => {
-      //   console.log(res);
-      // });
-      // const ELEMENT_TYPE = "card";
-      // stripe = await loadStripe(
-      //   "pk_test_51L4JDISEvKMW8AqalKSC2LJYUuLwuONr0OOgoxwTOiXV8XRaLEeot4UApON2embEL18QCLRUl8JuP6ZYdqn7knxs00qaDCVDKw"
-      // );
-      // this.publishableKey = "";
-      // elements = stripe.elements();
-      // card = elements.create(ELEMENT_TYPE, {
-      //   base: {
-      //     color: "#32325d",
-      //     fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-      //     fontSmoothing: "antialiased",
-      //     fontSize: "16px",
-      //     "::placeholder": {
-      //       color: "#aab7c4"
-      //     }
-      //   },
-      //   invalid: {
-      //     color: "#fa755a",
-      //     iconColor: "#fa755a"
-      //   }
-      // });
-      // card.mount("#card");
+    
+      admin.getAdminFunction().then(res => {
+        console.log(res);
+      });
+      console.log(modal1Visible.value);
+      const currentUser = Parse.User.current();
+      const Subscription = currentUser.get('Subscription')
+      if(Subscription=="on"){
+        console.log("on")
+        proFeaturesData.state=true
+        proFeaturesData.proUser="You are a pro member"
+        proFeaturesData.color="red"
+
+      }
     });
-    const modal2Visible = ref(false);
+    var modal2Visible = ref(false);
 
     const setModal1Visible = visible => {
       modal1Visible.value = visible;
     };
-    const createT = async () => {
-      console.log("creating......................");
-      proFeaturesData.stripe.createToken(proFeaturesData.card).then(async res => {
-        console.log(res.token.id);
-        var token = res.token.id;
-        console.log("token", token);
-        const currentUser = Parse.User.current();
-        var email = currentUser.get("username");
-        console.log("clicked");
-        var fname = currentUser.get("firstName");
-        var lname = currentUser.get("lastName");
-        var fullname = fname + lname;
-        var cusid = "";
-        var subid = "";
-        var clientSecret=""
-        try {
-          const res = await StripeService.createCust(email, fullname);
-          console.log("res", res);
-          cusid = res.data.customer;
+    // const createT = async () => {
+    //   console.log("creating......................");
+    //   proFeaturesData.stripe
+    //     .createToken(proFeaturesData.card)
+    //     .then(async res => {
+    //       console.log(res.token.id);
+    //       var token = res.token.id;
+    //       console.log("token", token);
+    //       const currentUser = Parse.User.current();
+    //       var email = currentUser.get("username");
+    //       console.log("clicked");
+    //       var fname = currentUser.get("firstName");
+    //       var lname = currentUser.get("lastName");
+    //       var fullname = fname + lname;
+    //       var cusid = "";
+    //       var subid = "";
+    //       var clientSecret = "";
+    //       try {
+    //         const res = await StripeService.createCust(email, fullname);
+    //         console.log("res", res);
+    //         cusid = res.data.customer;
 
-          // if (res.data.customer) {
-          //   proFeaturesData.cusId = res.data.customer;
-          //   console.log(res);
+    //         // if (res.data.customer) {
+    //         //   proFeaturesData.cusId = res.data.customer;
+    //         //   console.log(res);
 
-          // }
-        } catch (error) {
+    //         // }
+    //       } catch (error) {
+    //         console.log(error);
+    //       }
+    //       try {
+    //         const res1 = await StripeService.createSubs(
+    //           cusid,
+    //           proFeaturesData.priceId1
+    //         );
+    //         console.log(res1);
+    //         clientSecret = res1.data.clientSecret;
+
+    //         subid = res1.data.subscriptionId;
+    //         // console.log(subid,res.data.clientSecret)
+    //         if (res1.data) {
+    //           // const currentUser = Parse.User.current();
+    //         }
+    //       } catch (error) {
+    //         console.log(error);
+    //       }
+
+    //       try {
+    //         const res = await StripeService.setToken(cusid, token);
+    //         console.log(subid);
+
+    //         // const query1 = new Parse.Query("Purchases");
+    //         // currentUser.set("planId",proFeaturesData.priceId1)
+    //         const Purchases = Parse.Object.extend("Purchases");
+    //         const addPurchase = new Purchases();
+    //         var acl = new Parse.ACL(Parse.User.current());
+    //         await admin.getAdminFunction().then(res => {
+    //           console.log(res);
+    //           acl.setWriteAccess(res.id, true);
+    //           acl.setReadAccess(res.id, true);
+    //         });
+
+    //         addPurchase.set({
+    //           customerId: cusid,
+    //           subscriptionId: subid,
+    //           amount: 869,
+    //           user: email,
+    //           planId: proFeaturesData.priceId1,
+    //           purchaseDate: new Date()
+    //         });
+    //         addPurchase.setACL(acl);
+    //         await addPurchase.save().then(() => {
+    //           console.log("purchase added");
+    //         });
+
+    //         currentUser.set("plan", "pro");
+    //         currentUser.set("Subscription", "on");
+    //         //  await  currentUser.set("planExpiryDate", );
+    //         await proFeaturesData.stripe
+    //           .confirmCardPayment(clientSecret, {
+    //             payment_method: {
+    //               type: "card",
+    //               card: proFeaturesData.card,
+    //               billing_details: {
+    //                 name: "fullName"
+    //               }
+    //             }
+    //           })
+    //           .then(res => {
+    //             console.log(res);
+    //           })
+    //           .catch(error => {
+    //             console.log(error);
+    //           });
+
+    //         await currentUser.save();
+
+    //         // const query1 = new Parse.Query("Purchases");
+
+    //         console.log(res);
+    //       } catch (error) {
+    //         console.log(error);
+    //       }
+    //     });
+    //   console.log(proFeaturesData.card);
+    // };
+
+    const pay = async (amount, priceId) => {
+      proFeaturesData.loader = true;
+      const currentUser = Parse.User.current();
+      var email = currentUser.get("username");
+      console.log(email);
+
+      var token = "";
+      var clientSecret = "";
+      var subId = "";
+      var cusId = "";
+
+      await proFeaturesData.stripe
+        .createToken(proFeaturesData.card)
+        .then(data => {
+          token = data.token.id;
+        })
+        .catch(error => {
           console.log(error);
-        }
-        try {
-          const res1 = await StripeService.createSubs(
-            cusid,
-            proFeaturesData.priceId1
-          );
-          console.log(res1);
-          clientSecret=res1.data.clientSecret
 
-          subid = res1.data.subscriptionId;
-          // console.log(subid,res.data.clientSecret)
-          if (res1.data) {
-            // const currentUser = Parse.User.current();
-          }
-        } catch (error) {
-          console.log(error);
-        }
+          proFeaturesData.loader = false;
+          message.error("enter valid card details");
+        });
+      console.log(token);
+      console.log(amount, priceId);
 
-        try {
-          const res = await StripeService.setToken(cusid, token);
-          console.log(subid);
+      if (token) {
+        // const currentUser = Parse.User.current();
+        console.log(currentUser);
 
-          // const query1 = new Parse.Query("Purchases");
-          // currentUser.set("planId",proFeaturesData.priceId1)
-          const Purchases = Parse.Object.extend("Purchases");
-          const addPurchase = new Purchases();
-          var acl = new Parse.ACL(Parse.User.current());
-          await admin.getAdminFunction().then(res => {
-            console.log(res);
-            acl.setWriteAccess(res.id, true);
-            acl.setReadAccess(res.id, true);
-          });
-
-          addPurchase.set({
-            customerId: cusid,
-            subscriptionId: subid,
-            amount: 869,
-            user: email,
-            planId: proFeaturesData.priceId1,
-            purchaseDate: new Date()
-          });
-          addPurchase.setACL(acl);
-          await addPurchase.save().then(() => {
-            console.log("purchase added");
-          });
-
-          currentUser.set("plan", "pro");
-          currentUser.set("Subscription", "on");
-          //  await  currentUser.set("planExpiryDate", );
-        await proFeaturesData.stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          type: 'card',
-          card: proFeaturesData.card,
-          billing_details: {
-            name: "fullName",
-          }
-        }
-      }).then((res)=>{console.log(res)}).catch(error=>{
-        console.log(error)
-      })
-
-          await currentUser.save();
-
-          // const query1 = new Parse.Query("Purchases");
-
+        const params1 = { email: email, name: proFeaturesData.name };
+        await Parse.Cloud.run("createStripeCustomer", params1).then(res => {
           console.log(res);
-        } catch (error) {
+          cusId = res.id;
+
+          console.log(cusId);
+        });
+
+        const params2 = {
+          customerId: cusId,
+          priceId: priceId
+        };
+        await Parse.Cloud.run("createStripeSubscription", params2).then(
+          subscription => {
+            console.log(subscription);
+            clientSecret =
+              subscription.latest_invoice.payment_intent.client_secret;
+            subId = subscription.id;
+            console.log(subId, clientSecret);
+            //     subscriptionId: subscription.id,
+            // clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+          }
+        );
+      }
+      if (!token) {
+        proFeaturesData.loader = false;
+      }
+
+      await proFeaturesData.stripe
+        .confirmCardPayment(clientSecret, {
+          payment_method: {
+            type: "card",
+            card: proFeaturesData.card,
+            billing_details: {
+              name: "fullName"
+            }
+          }
+        })
+        .then(async res => {
+          //
+          console.log(res);
+          if (res.error) {
+            console.log(res.error);
+            const params4 = {
+              customerId: cusId
+            };
+
+            await Parse.Cloud.run("deleteStripeCustomer", params4).then(res => {
+              console.log(res);
+            });
+            message.error(res.error.message);
+
+            modal2Visible.value = false;
+          } else {
+            const params3 = {
+              customerId: cusId,
+              token: token
+            };
+            console.log("params3", params3);
+            await Parse.Cloud.run("saveStripeCardDetails", params3).then(
+              res => {
+                console.log(res);
+              }
+            );
+            const Purchases = Parse.Object.extend("Purchases");
+            const addPurchase = new Purchases();
+            // var acl = new Parse.ACL(Parse.User.current());
+            // await admin.getAdminFunction().then(res => {
+            //   console.log(res);
+            //   acl.setWriteAccess(res.id, true);
+            //   acl.setReadAccess(res.id, true);
+            // });
+
+            const getAdmin = Parse.Object.extend("User");
+            const adminquery = new Parse.Query(getAdmin);
+            adminquery.equalTo("username", "admin@logatp.com");
+            const object = await adminquery.first();
+            const acl = new Parse.ACL(Parse.User.current());
+            acl.setWriteAccess(object.id, true);
+            acl.setReadAccess(object.id, true);
+
+            let currentDateTime = moment();
+            if (amount == 869) {
+              currentDateTime = moment(currentDateTime).add(30, "days");
+            } else {
+              currentDateTime = moment(currentDateTime).add(365, "days");
+            }
+            // console.log("currentDateTime", currentDateTime);
+            // add days in current time and re console it.
+            console.log("currentDateTime plus 30s", currentDateTime._d);
+
+            addPurchase.set({
+              customerId: cusId,
+              subscriptionId: subId,
+              amount: proFeaturesData.amount,
+              user: email,
+              planId: proFeaturesData.plandId,
+              purchaseDate: new Date()
+            });
+            addPurchase.setACL(acl);
+            await addPurchase.save().then(() => {
+              console.log("purchase added");
+            });
+
+            currentUser.set("plan", "pro");
+            currentUser.set("Subscription", "on");
+            currentUser.set("planExpiryDate", currentDateTime._d);
+            await currentUser.save().then(() => {
+              console.log("user updated");
+            });
+            message.success("payment completed");
+            proFeaturesData.state = true;
+            proFeaturesData.loader = false;
+            proFeaturesData.proUser="You are a pro member"
+            proFeaturesData.color="red"
+
+
+            modal2Visible.value = false;
+            // proFeaturesData.state=true
+
+            //  await  currentUser.set("planExpiryDate", );
+          }
+        })
+        .catch(error => {
+          message.error("payment failed");
+          proFeaturesData.loader = false;
+
+          modal1Visible.value = false;
+
           console.log(error);
-        }
-      });
-      console.log(proFeaturesData.card);
+        });
     };
     const renderCard = async () => {
       // let stripe = null;
@@ -285,7 +475,7 @@ export default defineComponent({
       const ELEMENT_TYPE = "card";
 
       proFeaturesData.stripe = await loadStripe(
-        "pk_test_51L4JDISEvKMW8AqalKSC2LJYUuLwuONr0OOgoxwTOiXV8XRaLEeot4UApON2embEL18QCLRUl8JuP6ZYdqn7knxs00qaDCVDKw"
+        "pk_test_51LdaSGGXj7ZrMaUQetqoJH010X91s7sKsZZsDWtc1ubIjx9AFTbftEAJIu9JJ87cMgjqorUp4PTWbuonigthbH7v00HfoBoKqI"
       );
       // this.publishableKey = "";
 
@@ -306,6 +496,16 @@ export default defineComponent({
         }
       });
       proFeaturesData.card.mount("#card");
+    };
+
+    const monthlyPlan = () => {
+      proFeaturesData.amount = 869;
+      proFeaturesData.plandId = "price_1LnNVmGXj7ZrMaUQ0zmv8oZQ";
+    };
+
+    const yearlyPlan = () => {
+      proFeaturesData.amount = 8500;
+      proFeaturesData.plandId = "price_1LnNXxGXj7ZrMaUQ5RT3Yvp2";
     };
 
     // const Signup = async () => {
@@ -338,14 +538,30 @@ export default defineComponent({
       proFeaturesData,
       setModal1Visible,
       modal2Visible,
-      createT,
-      renderCard
+      // createT,
+      renderCard,
+      pay,
+      monthlyPlan,
+      yearlyPlan
     };
   }
 });
 </script>
 
 <style scoped>
+.subscriber-name{
+  border:none;
+  border-radius: 0.5;
+  margin-left: 18px;
+  margin-bottom: 25px;
+  padding:10px
+  
+  
+}
+.subscriber-name:focus{
+  outline:none;
+  
+}
 .center {
   display: flex;
   justify-content: center;

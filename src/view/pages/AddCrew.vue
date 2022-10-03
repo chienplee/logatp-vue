@@ -250,7 +250,7 @@ export default defineComponent({
       const currentUser = Parse.User.current();
       const getAdmin = Parse.Object.extend("User");
       const adminquery = new Parse.Query(getAdmin);
-      adminquery.equalTo("email", "admin@logatp.com");
+      adminquery.equalTo("username", "admin@logatp.com");
       const object = await adminquery.first();
       const acl = new Parse.ACL(Parse.User.current());
       acl.setWriteAccess(object.id, true);

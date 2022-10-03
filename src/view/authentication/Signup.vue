@@ -72,6 +72,7 @@ import Parse from "parse";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
+import admin from "../../server/admin"
 
 const SignUp = defineComponent({
   name: "SignUp",
@@ -84,13 +85,15 @@ const SignUp = defineComponent({
       formState.loader = true;
       console.log("siunp");
       const user = new Parse.User();
-      const getAdmin = Parse.Object.extend("User");
-      const adminquery = new Parse.Query(getAdmin);
-      adminquery.equalTo("email", "admin@logatp.com");
-      const object = await adminquery.first();
       const acl = new Parse.ACL(Parse.User.current());
-      acl.setWriteAccess(object.id, true);
-      acl.setReadAccess(object.id, true);
+
+
+      await admin.getAdminFunction().then(res => {
+              console.log(res);
+              acl.setWriteAccess(res.id, true);
+              acl.setReadAccess(res.id, true);
+            });
+      
       user.set("email", formState.email);
       user.set("password", formState.password);
       user.set("username", formState.email);

@@ -632,6 +632,7 @@ import AddCrew from "./AddCrew";
 import Crew from "../../customComponents/Crew.vue";
 import moment from "moment";
 import PropTypes from "vue-types";
+import circularview from "../../server/circularview";
 
 import Airplane from "../../server/Airplane.js";
 import Flight from "../../server/Flight.js";
@@ -892,7 +893,7 @@ export default defineComponent({
         });
       }
       const adminquery = new Parse.Query(getAdmin);
-      adminquery.equalTo("email", "admin@logatp.com");
+      adminquery.equalTo("username", "admin@logatp.com");
       const object = await adminquery.first();
 
       acl.setWriteAccess(object.id, true);
@@ -1105,6 +1106,12 @@ export default defineComponent({
       });
     });
     onMounted(async () => {
+      if(!props.id){
+        circularview.getCircularViews().then(res=>{
+          console.log(res)
+          flightState.PicTime=res.setPicFlight
+        })
+      }
       if (props.id) {
         loadingState.loading = true;
 
