@@ -9,14 +9,6 @@
         <template v-slot:content>
           <UserDropDwon>
             <div class="user-dropdwon">
-              <ul class="user-dropdwon__links">
-                <li>
-                  <a to="#"> <sdFeatherIcons type="user" /> Profile </a>
-                </li>
-                <li>
-                  <a to="#"> <sdFeatherIcons type="settings" /> Settings </a>
-                </li>
-              </ul>
               <a @click="SignOut" class="user-dropdwon__bottomAction" href="#">
                 <font-awesome-icon icon="fas fa-sign-out" />
                 Sign Out
