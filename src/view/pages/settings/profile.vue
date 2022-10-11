@@ -63,7 +63,7 @@
                         @select="onSelect"
                         :filter-option="filterOption"
                         @change="onChange"
-                        allowClear="true"
+                        
                       />
                     </a-form-item>
                   </a-col>
@@ -111,6 +111,8 @@ import { Main } from "../../styled";
 import { FormValidationWrap, VerticalFormStyleWrap } from "./Style";
 import user from "../../../server/user.js";
 import airlines from "../../../server/airlines";
+import { message } from "ant-design-vue";
+
 export default defineComponent({
   components: {
     Main,
@@ -146,8 +148,8 @@ export default defineComponent({
       formState.email = email;
       formState.value = airline;
       formState.homebase = base
-      console.log("nameee", fname);
-      console.log("nameee", lname);
+      // console.log("nameee", fname);
+      // console.log("nameee", lname);
     });
     const formState = reactive({
       layout: "horizontal",
@@ -177,7 +179,8 @@ export default defineComponent({
 
 
       await user1.save().then(() => {
-        console.log("updated");
+        // console.log("updated");
+        message.success("profile updated")
       });
       formState.loader=false
 
@@ -197,8 +200,8 @@ export default defineComponent({
       );
     };
 
-    const onChange = (value) => {
-      console.log("onChange", value);
+    const onChange = () => {
+      // console.log("onChange", value);
     };
     const filterOption = (input, option) => {
       return option.value.toUpperCase().indexOf(input.toUpperCase()) >= 0;

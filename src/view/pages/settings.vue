@@ -99,13 +99,15 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import { Main } from "../styled";
+import { Main,CardToolbox } from "../styled";
 import Profile from "./settings/profile.vue";
 import General from "./settings/general.vue";
 import Export from "./settings/export.vue";
 import About from "./settings/About.vue";
 import Duplicate from "./settings/Duplicate.vue";
 import Pro from "../../customComponents/pro.vue"
+import { ContactPageheaderStyle } from "./style";
+
 
 export default defineComponent({
   components: {
@@ -115,7 +117,9 @@ export default defineComponent({
     Export,
     About,
     Duplicate,
-    Pro
+    Pro,
+    CardToolbox,
+    ContactPageheaderStyle
   },
   setup() {
     return {

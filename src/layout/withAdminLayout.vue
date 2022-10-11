@@ -211,7 +211,7 @@ export default defineComponent({
   },
   setup() {
     const data = useStore();
-    console.log("data", data);
+    // console.log("data", data);
     const getterData = computed(() => data.getters.getCurrentUserDetails);
     const year = computed(() => new Date().getFullYear());
     const collapsed = ref(false);

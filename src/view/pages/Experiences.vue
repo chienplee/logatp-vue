@@ -86,18 +86,20 @@
   </template>
   
   <script>
-  import { Main } from "../styled";
+  import { Main,CardToolbox } from "../styled";
   import { defineComponent, onMounted, reactive } from "vue";
 import experience from "../../server/experience"
  
   // import JsHelper from "../../helper/JsHelper";
-  import { ContactCardWrapper } from "./style";
+  import { ContactCardWrapper,ContactPageheaderStyle } from "./style";
 
   export default defineComponent({
     name: "airplanes",
     components: {
       Main,
-      ContactCardWrapper 
+      ContactCardWrapper ,
+      ContactPageheaderStyle,
+      CardToolbox
       
     },
     setup() {

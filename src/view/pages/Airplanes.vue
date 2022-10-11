@@ -45,14 +45,18 @@
 </template>
 
 <script>
-import { Main } from "../styled";
+import { Main ,CardToolbox} from "../styled";
 import { defineComponent, onMounted, reactive } from "vue";
 import Airplane from "../../server/Airplane";
 import JsHelper from "../../helper/JsHelper";
+import { ContactPageheaderStyle } from "./style";
+
 export default defineComponent({
   name: "airplanes",
   components: {
-    Main
+    Main,
+    ContactPageheaderStyle,
+    CardToolbox
   },
   setup() {
     onMounted(async () => {

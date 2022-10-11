@@ -121,6 +121,7 @@
   import { defineComponent, onMounted, reactive } from "vue";
   import { Main, CardToolbox } from "../styled";
   import moment from "moment";
+  moment.suppressDeprecationWarnings = true;
   import {
     FormValidationWrap,
     VerticalFormStyleWrap

@@ -679,7 +679,6 @@ export default defineComponent({
       } else if (crewFeild.name == "crew4") {
         flightState.Crew4 = cr;
       }
-      console.log("clicked  on selectCrewMember", cr);
     };
 
     const NationalityState = reactive({
@@ -807,7 +806,7 @@ export default defineComponent({
       const currentUser = Parse.User.current();
       const CrewClass = Parse.Object.extend("Crew");
       const crewQuery = new Parse.Query(CrewClass);
-
+      const username= await currentUser.get('username');
       const airportDestinationQuery = new Parse.Query(AirPort);
       const departureQuery = new Parse.Query(AirPort);
       airportDestinationQuery.equalTo(
@@ -826,45 +825,40 @@ export default defineComponent({
         .then((object) => {
           pointer = object;
         })
-        .catch((error) => {
+        .catch(() => {
           pointer = null;
-          console.log("error", error);
         });
       await crewQuery
         .get(flightState.PilotInCommand.id)
         .then((object) => {
           pointer = object;
         })
-        .catch((error) => {
+        .catch(() => {
           pointer = null;
-          console.log("error", error);
         });
       await crewQuery
         .get(flightState.Crew2.id)
         .then((object) => {
           crew2 = object;
         })
-        .catch((error) => {
+        .catch(() => {
           crew2 = null;
-          console.log("error", error);
         });
       await crewQuery
         .get(flightState.Crew3.id)
         .then((object) => {
           crew3 = object;
         })
-        .catch((error) => {
+        .catch(() => {
           crew3 = null;
-          console.log("error", error);
         });
       await crewQuery
         .get(flightState.Crew4.id)
         .then((object) => {
           crew4 = object;
         })
-        .catch((error) => {
+        .catch(() => {
           crew4 = null;
-          console.log("error", error);
         });
       var airplanePointer = null;
       const getAdmin = Parse.Object.extend("User");
@@ -876,8 +870,7 @@ export default defineComponent({
         .then((obj) => {
           airplanePointer = obj;
         })
-        .catch((err) => {
-          console.log("err", err);
+        .catch(() => {
           airplanePointer = null;
         });
       const acl = new Parse.ACL(Parse.User.current());
@@ -963,6 +956,7 @@ export default defineComponent({
           });
         } else {
           await addFlight.set({
+            username:username,
             airplanePointer: airplanePointer,
             realmID: jsHelper.makeid(10),
             departureAirport: departureAirport,
@@ -1007,7 +1001,7 @@ export default defineComponent({
           addFlight.setACL(acl);
           await addFlight.save().then(
             async () => {
-              // await Parse.Cloud.run("updateRealTrackFlig/htInfo")
+              // await Parse.Cloud.run("updateRealTrackFlightInfo")
 
               message.success("flight added");
               (flightState.PilotInCommand = ""), (flightState.Crew2 = "");
@@ -1038,10 +1032,9 @@ export default defineComponent({
               flightState.nightTime = "";
               loadingState.loading = false;
             },
-            (error) => {
+            () => {
               message.error("Error while adding flight");
 
-              console.log(error);
             }
           );
         }
@@ -1110,7 +1103,6 @@ export default defineComponent({
     onMounted(async () => {
       if(!props.id){
         circularview.getCircularViews().then(res=>{
-          console.log(res)
           flightState.PicTime=res.setPicFlight
         })
       }
@@ -1165,7 +1157,6 @@ export default defineComponent({
                 crew2Pointer.get("lastName");
             }
             if (airplanePointer) {
-              // console.log("reg1178",registeration);
               flightState.airplane = {
                 aircraftType: aircraftType,
                 aircraftRegisteration: aircraftRegistration,
@@ -1220,9 +1211,8 @@ export default defineComponent({
             flightState.Note = notes;
             loadingState.loading = false;
           },
-          (error) => {
+          () => {
             loadingState.loading = false;
-            console.log(error);
           }
         );
       }
@@ -1286,8 +1276,7 @@ export default defineComponent({
               flightState.AircraftRegistaton =
                 flightState.airplane.aircraftRegisteration;
             })
-            .catch((error) => {
-              console.log("error", error);
+            .catch(() => {
             });
         }
       }
@@ -1321,8 +1310,7 @@ export default defineComponent({
                 id: lastFlightData.crew2.id,
               };
             })
-            .catch((error) => {
-              console.log("error", error);
+            .catch(() => {
             });
         }
         if (lastFlightData.crew3) {
@@ -1335,8 +1323,7 @@ export default defineComponent({
                 id: lastFlightData.crew3.id,
               };
             })
-            .catch((error) => {
-              console.log("error", error);
+            .catch(() => {
             });
         }
         if (lastFlightData.crew4) {
@@ -1349,8 +1336,7 @@ export default defineComponent({
                 id: lastFlightData.crew4.id,
               };
             })
-            .catch((error) => {
-              console.log("error", error);
+            .catch(() => {
             });
         }
       }
@@ -1406,15 +1392,8 @@ export default defineComponent({
       }
     };
     const setNightTime = async () => {
-      console.log(
-        "set night",
-        flightState.InTime,
-        flightState.OutTime,
-        flightState.OnTime
-      );
       if (flightState.InTime && flightState.OutTime && flightState.OnTime) {
-        console.log("set night if");
-
+        loadingState.loading=true;
         const AirPort = Parse.Object.extend("Airport");
         const airportDestinationQuery = new Parse.Query(AirPort);
         const departureQuery = new Parse.Query(AirPort);
@@ -1444,21 +1423,14 @@ export default defineComponent({
           longitude: destlong,
         };
         var d = getDistance(start, end, 1);
-        console.log("distance", d);
         var nightTime = 0;
         var time = TimeDetails.onTime;
-        // console.log("TimeDetails.onTime",TimeDetails.onTime);
         var i;
-        // var blockTime=60;
         var blockTime = flightState.BlockTime;
         for (i = 0; i < blockTime; i++) {
-          console.log("i", i);
           let f = i / blockTime;
           let A = Math.sin(1 - f * d) / Math.sin(d);
           let B = Math.sin(f * d) / Math.sin(d);
-          console.log("F", f);
-          console.log("A", A);
-          console.log("B", B);
 
           let x =
             A *
@@ -1477,50 +1449,31 @@ export default defineComponent({
           let z =
             A * Math.sin((departlat * Math.PI) / 180) +
             B * Math.sin((destlat * Math.PI) / 180);
-          console.log("x", x);
-          console.log("y", y);
-          console.log("z", z);
           let lat = (Math.atan2(z, Math.sqrt(x * x + y * y)) * Math.PI) / 180;
           let long = (Math.atan2(y, x) * Math.PI) / 180;
-          // time = time.addingTimeInterval(60)
-          console.log("lat,", lat);
-          console.log("long,", long);
-          console.log("time", new Date(moment.utc(time)));
-          console.log("time", time);
           time = moment(time).add(1, "m").toDate();
-          console.log("time", time);
-          console.log("newDate", new Date());
 
           //  var solar= new SolarCalc(new Date(time),35.78,-78.649999);
           var data = SunCalc.getTimes(time, lat, long);
-          console.log("data", data);
           var futuretime = moment(time).add(24, "h").toDate();
           var futuredata = SunCalc.getTimes(futuretime, lat, long);
           var pasttime = moment(time).add(-24, "h").toDate();
           var pastdata = SunCalc.getTimes(pasttime, lat, long);
 
-          console.log("solar", data.sunrise);
-          // console.log("solar",data1.sunrise);
-          var sunrise = data.sunrise;
-          // var sunset=data.sunset;
-          let futureSunrise = moment(sunrise).add(24, "h").toDate();
-          console.log("future", futureSunrise);
+          
           if (
             (time > data.sunrise && time < data.sunset) ||
             (time > futuredata.sunrise && time < futuredata.sunset) ||
             (time > pastdata.sunrise && time < pastdata.sunset)
           ) {
-            console.log("if");
+            console.log("");
           } else {
-            console.log("else");
             nightTime += 1;
-            console.log(" nightTime", nightTime);
           }
         }
-        console.log("TimeDetails.nightTime", TimeDetails.nightTime);
         flightState.nightTime = nightTime;
+        loadingState.loading=false
       } else {
-        console.log("set night else");
 
         return;
       }

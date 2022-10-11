@@ -42,12 +42,16 @@
 <script>
 import axios from "axios";
 import { defineComponent, reactive, onMounted } from "vue";
-import { Main } from "../styled";
+import { Main ,CardToolbox} from "../styled";
 const txml = require("txml");
+import { ContactPageheaderStyle } from "./style";
+
 
 export default defineComponent({
   components: {
-    Main
+    Main,
+    ContactPageheaderStyle,
+    CardToolbox
   },
 
   setup() {

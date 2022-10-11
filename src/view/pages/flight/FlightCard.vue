@@ -6,7 +6,7 @@
           <font-awesome-icon class="icon fa-5x " :icon="['fas', 'plane-departure']" />
         <figcaption>
           <h3>{{ flight.departure }} - {{ flight.destination }}</h3>
-          <!-- <span>{{ user.designation }}</span> -->
+          <span v-if="flight.proFlight"><font-awesome-icon icon="fa-solid fa-circle-check" /></span>
         </figcaption>
       </figure>
       <div class="user-info">

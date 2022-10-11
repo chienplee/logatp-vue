@@ -123,7 +123,8 @@ export default defineComponent({
           blockTime: k.get("blockTime"),
           flightNumber: k.get("flightNumber"),
           flightDate: k.get("flightDate"),
-          id: k.id
+          id: k.id,
+          proFlight:k.get('proFlight')
         };
       });
       pageSettings.flightsDetails.push(...pageSettings.temp);

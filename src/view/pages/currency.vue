@@ -219,6 +219,7 @@ import { defineComponent, onMounted, reactive } from "vue";
 import { Main, CardToolbox } from "../styled";
 import flight from "../../server/Flight";
 import moment from "moment";
+moment.suppressDeprecationWarnings = true;
 import { ContactPageheaderStyle } from "./style";
 
 export default defineComponent({

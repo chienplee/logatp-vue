@@ -120,10 +120,11 @@ import admin from "../server/admin.js";
 import { loadStripe } from "@stripe/stripe-js";
 import { message } from "ant-design-vue";
 import moment from "moment";
-
+import ContactCardWrapper from "./styled"
 export default defineComponent({
   components: {
-    Main
+    Main,
+    ContactCardWrapper
     // Token
   },
   setup() {
@@ -179,14 +180,14 @@ export default defineComponent({
     // var card = null;
     onMounted(async () => {
     
-      admin.getAdminFunction().then(res => {
-        console.log(res);
+      admin.getAdminFunction().then(() => {
+        // console.log(res);
       });
-      console.log(modal1Visible.value);
+      // console.log(modal1Visible.value);
       const currentUser = Parse.User.current();
       const Subscription = currentUser.get('Subscription')
       if(Subscription=="on"){
-        console.log("on")
+        // console.log("on")
         proFeaturesData.state=true
         proFeaturesData.proUser="You are a pro member"
         proFeaturesData.color="red"
@@ -309,7 +310,7 @@ export default defineComponent({
       proFeaturesData.loader = true;
       const currentUser = Parse.User.current();
       var email = currentUser.get("username");
-      console.log(email);
+      // console.log(email);
 
       var token = "";
       var clientSecret = "";
@@ -327,19 +328,19 @@ export default defineComponent({
           proFeaturesData.loader = false;
           message.error("enter valid card details");
         });
-      console.log(token);
-      console.log(amount, priceId);
+      // console.log(token);
+      // console.log(amount, priceId);
 
       if (token) {
         // const currentUser = Parse.User.current();
-        console.log(currentUser);
+        // console.log(currentUser);
 
         const params1 = { email: email, name: proFeaturesData.name };
         await Parse.Cloud.run("createStripeCustomer", params1).then(res => {
-          console.log(res);
+          // console.log(res);
           cusId = res.id;
 
-          console.log(cusId);
+          // console.log(cusId);
         });
 
         const params2 = {
@@ -348,11 +349,11 @@ export default defineComponent({
         };
         await Parse.Cloud.run("createStripeSubscription", params2).then(
           subscription => {
-            console.log(subscription);
+            // console.log(subscription);
             clientSecret =
               subscription.latest_invoice.payment_intent.client_secret;
             subId = subscription.id;
-            console.log(subId, clientSecret);
+            // console.log(subId, clientSecret);
             //     subscriptionId: subscription.id,
             // clientSecret: subscription.latest_invoice.payment_intent.client_secret,
           }
@@ -374,15 +375,15 @@ export default defineComponent({
         })
         .then(async res => {
           //
-          console.log(res);
+          // console.log(res);
           if (res.error) {
-            console.log(res.error);
+            // console.log(res.error);
             const params4 = {
               customerId: cusId
             };
 
-            await Parse.Cloud.run("deleteStripeCustomer", params4).then(res => {
-              console.log(res);
+            await Parse.Cloud.run("deleteStripeCustomer", params4).then(() => {
+              // console.log(res);
             });
             message.error(res.error.message);
 
@@ -392,10 +393,10 @@ export default defineComponent({
               customerId: cusId,
               token: token
             };
-            console.log("params3", params3);
+            // console.log("params3", params3);
             await Parse.Cloud.run("saveStripeCardDetails", params3).then(
-              res => {
-                console.log(res);
+              () => {
+                // console.log(res);
               }
             );
             const Purchases = Parse.Object.extend("Purchases");
@@ -423,7 +424,7 @@ export default defineComponent({
             }
             // console.log("currentDateTime", currentDateTime);
             // add days in current time and re console it.
-            console.log("currentDateTime plus 30s", currentDateTime._d);
+            // console.log("currentDateTime plus 30s", currentDateTime._d);
 
             addPurchase.set({
               customerId: cusId,
@@ -435,14 +436,16 @@ export default defineComponent({
             });
             addPurchase.setACL(acl);
             await addPurchase.save().then(() => {
-              console.log("purchase added");
+              // console.log("purchase added");
             });
 
             currentUser.set("plan", "pro");
             currentUser.set("Subscription", "on");
+            currentUser.set("ProUser", true);
+
             currentUser.set("planExpiryDate", currentDateTime._d);
             await currentUser.save().then(() => {
-              console.log("user updated");
+              // console.log("user updated");
             });
             message.success("payment completed");
             proFeaturesData.state = true;
@@ -471,7 +474,7 @@ export default defineComponent({
 
       let elements = null;
       // var card = null;
-      console.log("hello");
+      // console.log("hello");
       const ELEMENT_TYPE = "card";
 
       proFeaturesData.stripe = await loadStripe(

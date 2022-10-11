@@ -10,10 +10,9 @@ export default {
     const currentUser = Parse.User.current();
     if (currentUser) {
       const query1 = new Parse.Query("Flight");
+      query1.descending("createdAt");
+      query1.limit(1);
       var flightData = await query1.find();
-      const limit = flightData.length - 1;
-      query1.skip(limit);
-      flightData = await query1.find();
       // console.log("results",results);
       try {
         for (const object of flightData) {

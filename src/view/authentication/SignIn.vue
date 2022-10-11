@@ -93,10 +93,12 @@ const SignIn = defineComponent({
       try {
         await Parse.User.logIn(formState.email, formState.password);
         formState.loader = false;
-        message.success("signin Success");
 
         const currentUser = Parse.User.current();
-        const email = currentUser.get("username");
+        if(!currentUser.get("deleted")){
+        message.success("signin Success");
+
+          const email = currentUser.get("username");
         console.log("current user: " + email);
         data.commit("setCurrentUserDetails", email);
 
@@ -104,6 +106,12 @@ const SignIn = defineComponent({
         dispatch("login");
 
         console.log("sign in success", currentUser.get("username"));
+
+        }
+        else{
+          message.error("you are not allowed to sign in")
+        }
+       
       } catch (error) {
         formState.loader = false;
 

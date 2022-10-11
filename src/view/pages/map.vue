@@ -62,7 +62,9 @@
 
 <script>
 import { defineComponent, ref, onMounted, reactive } from "vue";
-import { Main } from "../styled";
+import { Main, CardToolbox} from "../styled";
+import { ContactPageheaderStyle } from "./style";
+
 // import { GoogleMap } from "vue3-google-map";
 import countries from "../../helper/countryData.json";
 import Flight from "../../server/Flight";
@@ -81,7 +83,9 @@ export default defineComponent({
     GoogleMap,
     MarkerCluster,
     Polyline,
-    InfoWindow
+    InfoWindow,
+    ContactPageheaderStyle,
+    CardToolbox
   },
   setup() {
     const tabPosition = ref("left");

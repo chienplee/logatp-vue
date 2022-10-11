@@ -40,8 +40,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   window.scrollTo(0, 0)
-  console.log(store.state.auth);
-  console.log(to, store);
+  // console.log(store.state.auth);
+  // console.log(to, store);
   if (to.meta.auth && store.state.auth.login) {
     next({ to: "/" });
   } else if (!to.meta.auth && !store.state.auth.login) {

@@ -83,13 +83,13 @@ const SignUp = defineComponent({
     const checked = ref(null);
     const handleSubmit = async () => {
       formState.loader = true;
-      console.log("siunp");
+      // console.log("siunp");
       const user = new Parse.User();
       const acl = new Parse.ACL(Parse.User.current());
 
 
       await admin.getAdminFunction().then(res => {
-              console.log(res);
+              // console.log(res);
               acl.setWriteAccess(res.id, true);
               acl.setReadAccess(res.id, true);
             });
@@ -108,11 +108,12 @@ const SignUp = defineComponent({
         message.success("SignUp Success");
         router.push("/");
         dispatch("login");
-        const currentUser = Parse.User.current();
-        console.log("use signup done", currentUser.get("username"));
+        // const currentUser = Parse.User.current();
+        // console.log("use signup done", currentUser.get("username"));
       } catch (error) {
-        console.log("use signup error");
+        // console.log("use signup error");
         formState.loader = false;
+        message.error(error)
 
         // alert("Error: " + error.code + " " + error.message);
         message.error("Sign up Failed");

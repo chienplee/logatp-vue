@@ -45,7 +45,9 @@
 <script>
 import { defineComponent, reactive, onMounted } from "vue";
 import airports from "../../server/Airport";
-import { Main } from "../styled";
+import { Main,CardToolbox } from "../styled";
+import { ContactPageheaderStyle } from "./style";
+
 
 import { GoogleMap, Marker } from "vue3-google-map";
 
@@ -53,7 +55,9 @@ export default defineComponent({
   components: {
     Main,
     GoogleMap,
-    Marker
+    Marker,
+    CardToolbox,
+    ContactPageheaderStyle
     // InfoWindow
   },
 

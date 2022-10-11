@@ -167,14 +167,14 @@ export default defineComponent({
 
       var query = new Parse.Query("circularviews");
       const data = await query.first();
-      console.log(data);
+      // console.log(data);
       if (!data) {
         const circularviews = Parse.Object.extend("circularviews");
         const circularView = new circularviews();
         const currentUser = Parse.User.current();
         const getAdmin = Parse.Object.extend("User");
         const adminquery = new Parse.Query(getAdmin);
-        adminquery.equalTo("email", "admin@logatp.com");
+        adminquery.equalTo("username", "admin@logatp.com");
         const object = await adminquery.first();
         const acl = new Parse.ACL(Parse.User.current());
         acl.setWriteAccess(object.id, true);
@@ -199,11 +199,11 @@ export default defineComponent({
           });
         }
         await circularView.setACL(acl);
-        circularView.save().then((res) => {
-          console.log(res)
+        circularView.save().then(() => {
+          // console.log(res)
                  message.success(" Success");
 
-          console.log("Added");
+          // console.log("Added");
         
 
         });
@@ -224,9 +224,12 @@ export default defineComponent({
         data.set("experienceHours",formState.experienceHours)
 
         await data.save().then(() => {
-          console.log("success");
+          // console.log("success");
+          message.success("Updated")
         }).catch((err)=>{console.log(err)
-        console.log(typeof(formState.totaldays1))
+          message.error(err)
+
+        // console.log(typeof(formState.totaldays1))
         })
       }
 
@@ -245,7 +248,7 @@ export default defineComponent({
     }
     onMounted(async() => {
     await circularview.getCircularViews().then((results)=>{
-    console.log(results)
+    // console.log(results)
     formState.totaldays1 =results.totaldays1
     formState.totaldays2 =results.totaldays2
     formState.totaldays3 =results.totaldays3

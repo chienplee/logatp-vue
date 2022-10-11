@@ -221,12 +221,14 @@ import { defineComponent, onMounted, reactive } from "vue";
 import Flight from "../../server/Flight";
 import JsHelper from "../../helper/JsHelper.js";
 import countries from "../../helper/countryData.json";
-
-import { Main } from "../styled";
+import { ContactPageheaderStyle } from "./style";
+import { Main ,CardToolbox} from "../styled";
 
 export default defineComponent({
   components: {
-    Main
+    Main,
+    ContactPageheaderStyle,
+    CardToolbox
   },
   setup() {
     onMounted(async () => {
