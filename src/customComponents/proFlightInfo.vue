@@ -120,7 +120,7 @@
                       <label>Filed Departure Time</label>
                     </a-col>
                     <a-col :lg="4" :md="6" :sm="12" :xs="12">
-                      <span>{{state.filesDepTile}}</span>
+                      <span>{{state.filesDepTime}}</span>
                     </a-col>
                   </a-row>
                   <a-row class="mt-5">
@@ -276,6 +276,14 @@ export default defineComponent({
       state.type = flightInformation.flights[0].aircrafttype;
       state.tailNumber = flightInformation.flights[0].tailnumber;
       state.status = flightInformation.flights[0].status;
+      state.filedDistance = flightInformation.flights[0].distance_filed;
+      state.filedete = flightInformation.flights[0].filed_ete
+      state.filesDepTime=flightInformation.flights[0].filed_departure_time.time
+      state.filedArrivalTime=flightInformation.flights[0].filed_arrival_time.time
+      state.actualOffTime=flightInformation.flights[0].actual_blockin_time.time
+      state.actualOnTime=flightInformation.flights[0].actual_departure_time.time
+      state.actualOutTime=flightInformation.flights[0].actual_blockout_time.time
+      state.actualinTime=flightInformation.flights[0].actual_arrival_time.time
      
       const realTrackData = flight.get("realTrack");
       if (realTrackData) {
@@ -309,7 +317,7 @@ export default defineComponent({
       filedInitialAltitude: "",
       filedDistance: "",
       filesRoute: "",
-      filesDepTile: "",
+      filesDepTime: "",
       filedArrivalTime: "",
       actualOffTime: "",
       actualOnTime: "",
