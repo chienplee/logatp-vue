@@ -5,7 +5,7 @@ import "./static/css/style.css";
 
 import Parse from "parse";
 Parse.initialize("kBs4F7HKAdGvWkM7TctqEDP1unOZCf4mgHGlY25O");
-Parse.serverURL = "https://staging.logatp.com/parse"//"https://staging-logatp.herokuapp.com/parse";
+Parse.serverURL = "https://server.logatp.com/parse"//"https://staging-logatp.herokuapp.com/parse";
 
 // Vue 3rd party plugins
 import "@/core/plugins/ant-design";
